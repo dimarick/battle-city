@@ -18,11 +18,8 @@ export default class StaticObject {
     }
 
     render(context, time) {
-        if (this.lastStateChange + this.blinkInterval < time) {
-            this.currentState++;
-            if (this.currentState >= this.tiles.length) {
-                this.currentState = 0;
-            }
+        if (this.lastStateChange + this.blinkInterval < time && this.blinkInterval) {
+            this.currentState = (this.currentState + Math.floor((time - this.lastStateChange) / this.blinkInterval)) % this.tiles.length;
             this.lastStateChange = time;
         }
 

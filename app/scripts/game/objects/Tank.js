@@ -17,7 +17,7 @@ export default class Tank extends DynamicObject {
         super();
         this.tankTile = tankTile;
         this.setPosition(x, y);
-        this.direction = direction;
+        this.setSpeed(0, direction);
     }
 
     setPosition(x, y) {
@@ -27,6 +27,11 @@ export default class Tank extends DynamicObject {
 
     setSpeed(speed, direction) {
         if (direction !== undefined) {
+            if (this._isRotates(this.direction, direction)) {
+                this.x = Math.round(this.x / 8) * 8;
+                this.y = Math.round(this.y / 8) * 8;
+            }
+
             this.direction = direction;
         }
 
@@ -70,5 +75,29 @@ export default class Tank extends DynamicObject {
             case TankDirection.right:
                 return this.tankTile.right;
         }
+    }
+
+    /**
+     * @param directionFrom
+     * @param directionTo
+     * @private
+     */
+    _isRotates(directionFrom, directionTo) {
+        if (
+            (directionFrom === TankDirection.up || directionFrom === TankDirection.down) &&
+            (directionTo === TankDirection.left || directionTo === TankDirection.right)
+        ) {
+            return true;
+        }
+
+        //noinspection RedundantIfStatementJS
+        if (
+            (directionTo === TankDirection.up || directionTo === TankDirection.down) &&
+            (directionFrom === TankDirection.left || directionFrom === TankDirection.right)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

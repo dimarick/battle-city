@@ -2,7 +2,8 @@ import Game from './game/Game';
 
 window.addEventListener("load", () => {
     "use strict";
-    const game = new Game(document.getElementById('game-battle-city').getContext('2d'));
+    const element = document.getElementById('game-battle-city');
+    const game = new Game(element.getContext('2d'));
     game.start();
 
     const debugCheckbox = document.getElementById('game-show-debug-info');

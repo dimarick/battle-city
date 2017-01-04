@@ -17,7 +17,7 @@ export default class Scene
         const that = this;
 
         function renderLoop() {
-            const now = performance.now() - that._start;
+            const now = that.getTime();
 
             that.render(now);
             that._framecounter++;
@@ -25,7 +25,7 @@ export default class Scene
             that.animationFrame = requestAnimationFrame(renderLoop)
         }
 
-        // setInterval(renderLoop, 0)
+        // setInterval(renderLoop, 2000);
         renderLoop();
     }
 
@@ -68,5 +68,9 @@ export default class Scene
         this._objects.forEach((object) => {
             this.detach(object);
         });
+    }
+
+    getTime() {
+        return performance.now() - this._start;
     }
 }

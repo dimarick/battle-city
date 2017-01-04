@@ -8,7 +8,7 @@ export default class EventManager {
      * @param {object} object
      * @param {string} eventName
      * @param {Function} callback
-     * @param {*} context
+     * @param {?*} context
      */
     subscribe(object, eventName, callback, context) {
         this._getListeners(object, eventName).push([callback, context]);
@@ -17,8 +17,8 @@ export default class EventManager {
     /**
      * @param {object} object
      * @param {string} eventName
-     * @param {Function} callback
-     * @param {*} context
+     * @param {?Function} callback
+     * @param {?*} context
      */
     unsubscribe(object, eventName, callback, context) {
         if (callback === undefined) {
@@ -55,10 +55,10 @@ export default class EventManager {
      * @private
      */
     _getListeners(object, eventName) {
-        this.listeners[object] = this.listeners[object] || {};
-        this.listeners[object][eventName] = this.listeners[object][eventName] || [];
+        this.listeners.set(object, this.listeners.get(object) || {});
+        this.listeners.get(object)[eventName] = this.listeners.get(object)[eventName] || [];
 
-        return this.listeners[object][eventName];
+        return this.listeners.get(object)[eventName];
     }
 
     /**
@@ -68,9 +68,9 @@ export default class EventManager {
      * @private
      */
     _setListeners(object, eventName, listeners) {
-        this.listeners[object] = this.listeners[object] || {};
-        this.listeners[object][eventName] = this.listeners[object][eventName] || [];
+        this.listeners.set(object, this.listeners.get(object) || {});
+        this.listeners.get(object)[eventName] = this.listeners.get(object)[eventName] || [];
 
-        this.listeners[object][eventName] = listeners;
+        this.listeners.get(object)[eventName] = listeners;
     }
 }

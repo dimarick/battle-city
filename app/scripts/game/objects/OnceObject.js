@@ -16,7 +16,8 @@ export default class OnceObject extends StaticObject {
      */
     render(context, time) {
         if (this.lastStateChange + this.blinkInterval < time) {
-            this.currentState++;
+            this.currentState += Math.floor((time - this.lastStateChange) / this.blinkInterval);
+
             if (this.currentState >= this.tiles.length) {
                 this.scene.detach(this);
                 return;
