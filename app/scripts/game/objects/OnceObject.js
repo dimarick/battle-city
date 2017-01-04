@@ -6,7 +6,7 @@ export default class OnceObject extends StaticObject {
      */
     onAttach(scene) {
         this.scene = scene;
-        this.lastStateChange = 0;
+        this.lastStateChange = scene.getTime();
         this.currentState = 0;
     }
 

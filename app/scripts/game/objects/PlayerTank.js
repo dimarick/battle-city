@@ -17,7 +17,8 @@ export default class PlayerTank extends Tank {
      * @param {Scene} scene
      */
     onAttach(scene) {
-        this.scene = scene;
+        super.onAttach(scene);
+
         const commandGroup = new CommandGroup({
             up: {start: () => this.commandUp(), stop: () => this.commandStop()},
             down: {start: () => this.commandDown(), stop: () => this.commandStop()},
@@ -36,23 +37,18 @@ export default class PlayerTank extends Tank {
     }
 
     commandUp() {
-        this.updatePosition(this.scene.getTime());
-        this.setSpeed(1, TankDirection.up);
+        this.changeDirection(1, TankDirection.up);
     }
     commandDown() {
-        this.updatePosition(this.scene.getTime());
-        this.setSpeed(1, TankDirection.down);
+        this.changeDirection(1, TankDirection.down);
     }
     commandLeft() {
-        this.updatePosition(this.scene.getTime());
-        this.setSpeed(1, TankDirection.left);
+        this.changeDirection(1, TankDirection.left);
     }
     commandRight() {
-        this.updatePosition(this.scene.getTime());
-        this.setSpeed(1, TankDirection.right);
+        this.changeDirection(1, TankDirection.right);
     }
     commandStop() {
-        this.updatePosition(this.scene.getTime());
-        this.setSpeed(0);
+        this.changeDirection(0);
     }
 }

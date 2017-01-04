@@ -60,16 +60,16 @@ export default class StageMap {
                 case '  ':
                     break;
                 case 'bk':
-                    objects.push(new StaticObject([tiles.block.brick], 0, x, y));
+                    objects.push(new StaticObject([tiles.block.brick], 0, x, y, 8, 8));
                     break;
                 case 'ct':
-                    objects.push(new StaticObject([tiles.block.concrete], 0, x, y));
+                    objects.push(new StaticObject([tiles.block.concrete], 0, x, y, 8, 8));
                     break;
                 case 'fr':
                     objects.push(new StaticObject([tiles.block.forest], 0, x, y));
                     break;
                 case 'wt':
-                    objects.push(new StaticObject(tiles.block.water.state, 320, x, y));
+                    objects.push(new StaticObject(tiles.block.water.state, 320, x, y, 8, 8));
                     break;
                 case 'ic':
                     objects.push(new StaticObject([tiles.block.ice], 0, x, y));

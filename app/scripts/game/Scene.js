@@ -1,4 +1,5 @@
 import EventManager from './event/eventManager';
+import CollisionEngine from './collision/CollisionEngine';
 
 export class SceneEvents {}
 SceneEvents.attach = 'scene.attach';
@@ -13,6 +14,9 @@ export default class Scene
         this._start = performance.now();
         this._framecounter = 0;
         this.eventManager = new EventManager();
+        this.collisionEngine = new CollisionEngine(this, 1000 / 120);
+        this.width = 13*16;
+        this.height = 13*16;
 
         const that = this;
 
@@ -54,8 +58,10 @@ export default class Scene
     }
 
     render(time) {
+        this.collisionEngine.check(time);
+
         this._context.fillStyle = this._bgColor;
-        this._context.fillRect(0, 0, 13*16*3, 13*16*3);
+        this._context.fillRect(0, 0, this.width * 3, this.height * 3);
 
         this._objects.forEach((object) => {
             object.render(this._context, time)

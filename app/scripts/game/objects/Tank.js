@@ -1,4 +1,5 @@
 import DynamicObject from './DynamicObject';
+import {CollisionEvent} from '../collision/CollisionEngine';
 
 export class TankDirection {}
 TankDirection.up = 'up';
@@ -18,6 +19,41 @@ export default class Tank extends DynamicObject {
         this.tankTile = tankTile;
         this.setPosition(x, y);
         this.setSpeed(0, direction);
+        this.width = 16;
+        this.height = 16;
+    }
+
+    /**
+     * @param {Scene} scene
+     */
+    onAttach(scene) {
+        this.scene = scene;
+        scene.eventManager.subscribe(this, CollisionEvent.contact, this.onContact, this);
+        scene.collisionEngine.attachDynamic(this);
+    }
+
+    /**
+     * @param {Tank} object
+     * @param {CollisionEvent} event
+     */
+    onContact(object, event) {
+        this.updatePosition(event.time);
+        console.log(this, event);
+
+        if (event.allowedX !== undefined) {
+            this.x = event.allowedX;
+        }
+
+        if (event.allowedY !== undefined) {
+            this.y = event.allowedY;
+        }
+    }
+
+    changeDirection(speed, direction) {
+        const now = this.scene.getTime();
+        this.updatePosition(this.scene.getTime());
+        this.scene.collisionEngine.checkObject(this, now);
+        this.setSpeed(speed, direction);
     }
 
     setPosition(x, y) {
@@ -55,7 +91,7 @@ export default class Tank extends DynamicObject {
         this.updatePosition(time);
 
         const directionTile = this._getDirectionTile();
-        const tile = Math.floor(this.x + this.y) % 2 === 0 ? directionTile.odd : directionTile.even;
+        const tile = Math.floor(time / 60 * (this.xSpeed + this.ySpeed ? 1 : 0)) % 2 === 0 ? directionTile.odd : directionTile.even;
 
         tile.renderFragment(context, this.x, this.y);
     }

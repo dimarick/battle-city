@@ -8,11 +8,12 @@ export default class DynamicObject {
     }
 
     updatePosition(time) {
-        if (this.prevPositionTime !== undefined) {
-            const interval = time - this.prevPositionTime;
+        if (this.updateTime !== undefined) {
+            const interval = time - this.updateTime;
             this.x += interval * this.xSpeed;
             this.y += interval * this.ySpeed;
         }
-        this.prevPositionTime = time;
+
+        this.updateTime = time;
     }
 }
