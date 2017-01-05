@@ -1,7 +1,6 @@
 export default class EventManager {
     constructor() {
         this.listeners = new WeakMap();
-        this.dispatching = undefined;
     }
 
     /**
@@ -16,20 +15,12 @@ export default class EventManager {
     /**
      * @param {object} object
      * @param {string} eventName
-     * @param {?Function} callback
+     * @param {int} id
      */
-    unsubscribe(object, eventName, callback) {
-        if (callback === undefined) {
-            if (this.dispatching === undefined) {
-                return;
-            }
-
-            callback = this.dispatching;
-        }
-
-        this._setListeners(object, eventName, this._getListeners(object, eventName).filter((value) => {
-            return value !== callback;
-        }));
+    unsubscribe(object, eventName, id) {
+        const listeners = this._getListeners(object, eventName);
+        delete listeners[id];
+        this._setListeners(object, eventName, listeners);
     }
 
     /**
@@ -40,9 +31,7 @@ export default class EventManager {
     dispatch(object, eventName, data) {
         const that = this;
         this._getListeners(object, eventName).forEach((listener) => {
-            that.dispatching = listener;
             listener(object, data, eventName, that);
-            that.dispatching = undefined;
         })
     }
 

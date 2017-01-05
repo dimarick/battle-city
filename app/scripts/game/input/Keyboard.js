@@ -4,16 +4,16 @@ export default class Keyboard
 {
     /**
      * @param bindings
-     * @param target
      * @param {EventManager} eventManager
      */
-    constructor(bindings, target, eventManager) {
+    constructor(bindings, eventManager) {
         this.bindings = bindings;
-        this.target = target;
         this.eventManager = eventManager;
     }
 
-    attach() {
+    attach(object) {
+        this.target = object;
+
         const that = this;
 
         this.keydownHandler = (event) => {
@@ -28,12 +28,18 @@ export default class Keyboard
 
         document.addEventListener('keydown', this.keydownHandler, true);
         document.addEventListener('keyup', this.keyupHandler, true);
-        this.eventManager.subscribe(this.target, SceneEvents.detach, this.detachObject.bind(this))
+        this.detachTargetSubscription = this.eventManager.subscribe(this.target, SceneEvents.detach, this.detachObject.bind(this));
     }
 
     detach() {
-        document.removeEventListener('keydown', this.keydownHandler);
-        document.removeEventListener('keyup', this.keyupHandler);
+        if (this.target !== undefined) {
+            document.removeEventListener('keydown', this.keydownHandler);
+            document.removeEventListener('keyup', this.keyupHandler);
+            this.eventManager.unsubscribe(this.target, SceneEvents.detach, this.detachTargetSubscription);
+
+            delete this.target;
+            delete this.detachTargetSubscription;
+        }
     }
 
     /**
@@ -76,8 +82,9 @@ export default class Keyboard
      * @param {EventManager} eventManager
      */
     detachObject(object, data, eventName, eventManager) {
-        this.detach();
-        eventManager.unsubscribe(object, eventName);
+        if (object === this.target) {
+            this.detach();
+        }
     }
 
     _isRepeated(keyCode) {

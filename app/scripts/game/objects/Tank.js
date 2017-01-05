@@ -49,10 +49,12 @@ export default class Tank extends DynamicObject {
             animation.x = this.x / 8;
             animation.y = this.y / 8;
 
+            this.scene.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
+
             this.scene.collisionEngine.detach(this);
             this.scene.detach(this);
             this.scene.attach(animation);
-            this.scene.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
+            this.scene.eventManager.subscribe(animation, SceneEvents.detach, () => this.scene.game.autoRespown(this.scene, this));
         } else if (event.sourceObject instanceof Tank) {
             this.scene.utils.handleBarrier(event);
         }

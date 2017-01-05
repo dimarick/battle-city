@@ -11,9 +11,13 @@ SceneEvents.detach = 'scene.detach';
 
 export default class Scene
 {
-    constructor(context, bgColor) {
+    /**
+     * @param {Game} game
+     * @param {CanvasRenderingContext2D} context
+     */
+    constructor(game, context) {
+        this.game = game;
         this._context = context;
-        this._bgColor = bgColor;
         this._objects = new Set;
         this._start = performance.now();
         this._framecounter = 0;
@@ -79,10 +83,10 @@ export default class Scene
     render(time) {
         this.collisionEngine.check(time);
 
-        this._context.fillStyle = this._bgColor;
+        this._context.fillStyle = 'black';
         this._context.fillRect(0, 0, this.width * 3, this.height * 3);
 
-        [...this._objects].reverse().forEach((object) => {
+        this._objects.forEach((object) => {
             object.render(this._context, time)
         })
     }
