@@ -1,4 +1,4 @@
-import EventManager from './event/eventManager';
+import EventManager from './event/EventManager';
 import CollisionEngine from './collision/CollisionEngine';
 
 export class SceneEvents {}

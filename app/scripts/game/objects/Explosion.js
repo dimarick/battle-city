@@ -23,7 +23,7 @@ export default class Explosion {
 
         scene.detach(this.targetObject);
         scene.attach(explosion);
-        scene.eventManager.subscribe(explosion, SceneEvents.detach, this.onExplosionDetach, this)
+        scene.eventManager.subscribe(explosion, SceneEvents.detach, this.onExplosionDetach.bind(this))
     }
 
     /**

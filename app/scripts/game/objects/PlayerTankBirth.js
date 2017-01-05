@@ -1,7 +1,5 @@
 import OnceObject from './OnceObject';
-import StaticObject from './StaticObject';
 import tiles from '../tiles';
-import eventManager from '../event/eventManager';
 
 export default class PlayerTankBirth extends OnceObject {
     constructor(tank, x, y) {

@@ -34,7 +34,7 @@ export default class Tank extends DynamicObject {
     onAttach(scene) {
         this.scene = scene;
         this.detached = false;
-        scene.eventManager.subscribe(this, CollisionEvent.contact, this.onContact, this);
+        scene.eventManager.subscribe(this, CollisionEvent.contact, this.onContact.bind(this));
         scene.collisionEngine.attachDynamic(this);
     }
 

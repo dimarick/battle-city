@@ -8,19 +8,17 @@ export default class EventManager {
      * @param {object} object
      * @param {string} eventName
      * @param {Function} callback
-     * @param {?*} context
      */
-    subscribe(object, eventName, callback, context) {
-        this._getListeners(object, eventName).push([callback, context]);
+    subscribe(object, eventName, callback) {
+        this._getListeners(object, eventName).push(callback);
     }
 
     /**
      * @param {object} object
      * @param {string} eventName
      * @param {?Function} callback
-     * @param {?*} context
      */
-    unsubscribe(object, eventName, callback, context) {
+    unsubscribe(object, eventName, callback) {
         if (callback === undefined) {
             if (this.dispatching === undefined) {
                 return;
@@ -30,7 +28,7 @@ export default class EventManager {
         }
 
         this._setListeners(object, eventName, this._getListeners(object, eventName).filter((value) => {
-            return value !== [callback, context];
+            return value !== callback;
         }));
     }
 
@@ -43,7 +41,7 @@ export default class EventManager {
         const that = this;
         this._getListeners(object, eventName).forEach((listener) => {
             that.dispatching = listener;
-            listener[0].call(listener[1], object, data, eventName, that);
+            listener(object, data, eventName, that);
             that.dispatching = undefined;
         })
     }

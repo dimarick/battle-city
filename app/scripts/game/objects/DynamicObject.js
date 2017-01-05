@@ -1,5 +1,3 @@
-import StaticObject from './StaticObject'
-
 export default class DynamicObject {
 
     setVector(xSpeed, ySpeed) {

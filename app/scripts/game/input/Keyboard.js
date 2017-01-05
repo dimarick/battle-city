@@ -28,7 +28,7 @@ export default class Keyboard
 
         document.addEventListener('keydown', this.keydownHandler, true);
         document.addEventListener('keyup', this.keyupHandler, true);
-        this.eventManager.subscribe(this.target, SceneEvents.detach, this.detachObject, this)
+        this.eventManager.subscribe(this.target, SceneEvents.detach, this.detachObject.bind(this))
     }
 
     detach() {
