@@ -60,8 +60,10 @@ export default class CollisionEngine {
      * @param time
      */
     checkObject(object, time) {
-        this._checkScene(object, time);
-        this._checkStatic(object, time)
+        let collisions = [];
+        collisions = collisions.concat(this._checkScene(object, time));
+        collisions = collisions.concat(this._checkStatic(object, time));
+        this._dispatchCollisions(object, collisions);
     }
 
     /**
@@ -90,8 +92,10 @@ export default class CollisionEngine {
         }
 
         if (allowedX !== undefined || allowedY !== undefined) {
-            this.scene.eventManager.dispatch(object, CollisionEvent.contact, new CollisionEvent(object, this.scene, time, allowedX, allowedY));
+            this.scene.eventManager.dispatch(object, CollisionEvent.contact, new CollisionEvent(object, [this.scene], time, allowedX, allowedY));
         }
+
+        return [];
     }
 
     /**
@@ -101,6 +105,7 @@ export default class CollisionEngine {
      */
     _checkStatic(object, time) {
         const that = this;
+        const collisions = [];
         that.staticObjects.forEach((wall) => {
             let allowedX, allowedY;
             const interval = (time - object.updateTime);
@@ -132,8 +137,58 @@ export default class CollisionEngine {
             }
 
             if (allowedX !== undefined || allowedY !== undefined) {
-                that.scene.eventManager.dispatch(object, CollisionEvent.contact, new CollisionEvent(object, wall, time, allowedX, allowedY));
+                collisions.push([wall, time, allowedX, allowedY]);
             }
         });
+
+        return collisions;
+    }
+
+    /**
+     * @param object
+     * @param {Array} collisions
+     * @private
+     */
+    _dispatchCollisions(object, collisions) {
+        if (collisions.length === 0) {
+            return;
+        }
+
+
+        const mergedEvent = collisions.reduce((mergedEvent, collisionEvent) =>
+        {
+            const [target, time, allowedX, allowedY] = collisionEvent;
+
+            mergedEvent.allowedX = this._mergePositionCoordinate(allowedX, mergedEvent.allowedX, object.xSpeed);
+            mergedEvent.allowedY = this._mergePositionCoordinate(allowedY, mergedEvent.allowedY, object.ySpeed);
+
+            if (mergedEvent.time !== undefined) {
+                mergedEvent.time = Math.min(time, mergedEvent.time);
+            } else {
+                mergedEvent.time = time;
+            }
+
+            mergedEvent.targetObject.push(target);
+
+            return mergedEvent;
+        }, new CollisionEvent(object, []));
+
+        this.scene.eventManager.dispatch(object, CollisionEvent.contact, mergedEvent);
+    }
+
+    _mergePositionCoordinate(position1, position2, speed) {
+        if (position1 !== undefined) {
+            if (position2 !== undefined) {
+                if (speed > 0) {
+                    return Math.min(position1, position2);
+                } else if (speed < 0) {
+                    return Math.max(position1, position2);
+                }
+            } else {
+                return position1;
+            }
+        }
+
+        return position2;
     }
 }

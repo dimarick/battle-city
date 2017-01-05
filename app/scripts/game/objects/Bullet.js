@@ -66,9 +66,11 @@ export default class Bullet extends DynamicObject {
             this.y = event.allowedY;
         }
 
-        if (event.targetObject.handleBullet !== undefined) {
-            event.targetObject.handleBullet(this, event);
-        }
+        event.targetObject.forEach((target) => {
+            if (target.handleBullet !== undefined) {
+                target.handleBullet(this, event);
+            }
+        });
 
         this.scene.detach(this);
         this.scene.attach(new Explosion(new StaticObject([], 0, this.getBangX() / 8 - 1, this.getBangY() / 8 - 1, 2, 2), undefined, 1));
