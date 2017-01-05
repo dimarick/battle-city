@@ -1,5 +1,9 @@
 import tiles from '../tiles'
-import StaticObject from './StaticObject'
+import Brick from './blocks/Brick';
+import Concrete from './blocks/Concrete';
+import Forest from './blocks/Forest';
+import Ice from './blocks/Ice';
+import Water from './blocks/Water';
 
 export const mapStage1 =
     '                                                    ' +
@@ -11,14 +15,14 @@ export const mapStage1 =
     '    bkbk    bkbk    bkbkctctbkbk    bkbk    bkbk    ' +
     '    bkbk    bkbk    bkbkctctbkbk    bkbk    bkbk    ' +
     '    bkbk    bkbk    bkbk    bkbk    bkbk    bkbk    ' +
-    '    bkbk    bkbk                    bkbk    bkbk    ' +
-    '    bkbk    bkbk                    bkbk    bkbk    ' +
+    '    bkbk    bkbkicicicicicicicicicicbkbk    bkbk    ' +
+    '    bkbk    bkbkicicicicicicicicicicbkbk    bkbk    ' +
     '                    bkbk    bkbk                    ' +
     '                    bkbk    bkbk                    ' +
     'bkbk    bkbkbkbk                    bkbkbkbk    bkbk' +
     'ctct    bkbkbkbk                    bkbkbkbk    ctct' +
-    '                    bkbk    bkbk                    ' +
-    '                    bkbkbkbkbkbk                    ' +
+    '    wtwtwtwtwtwtwtwtbkbk    bkbkfrfrfrfrfrfrfrfr    ' +
+    '    wtwtwtwtwtwtwtwtbkbkbkbkbkbkfrfrfrfrfrfrfrfr    ' +
     '    bkbk    bkbk    bkbkbkbkbkbk    bkbk    bkbk    ' +
     '    bkbk    bkbk    bkbk    bkbk    bkbk    bkbk    ' +
     '    bkbk    bkbk    bkbk    bkbk    bkbk    bkbk    ' +
@@ -60,19 +64,19 @@ export default class StageMap {
                 case '  ':
                     break;
                 case 'bk':
-                    objects.push(new StaticObject([tiles.block.brick], 0, x, y, 8, 8));
+                    objects.push(new Brick(x, y));
                     break;
                 case 'ct':
-                    objects.push(new StaticObject([tiles.block.concrete], 0, x, y, 8, 8));
+                    objects.push(new Concrete(x, y));
                     break;
                 case 'fr':
-                    objects.push(new StaticObject([tiles.block.forest], 0, x, y));
+                    objects.push(new Forest(x, y));
                     break;
                 case 'wt':
-                    objects.push(new StaticObject(tiles.block.water.state, 320, x, y, 8, 8));
+                    objects.push(new Water(x, y));
                     break;
                 case 'ic':
-                    objects.push(new StaticObject([tiles.block.ice], 0, x, y));
+                    objects.push(new Ice(x, y));
                     break;
             }
         }

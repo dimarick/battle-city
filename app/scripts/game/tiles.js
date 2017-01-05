@@ -259,6 +259,7 @@ class BulletTileRegistry extends Tile {
         this.right = new Tile(this, 24, 0, 4, 4);
     }
 }
+
 class TileRegistry extends Tile {
     constructor() {
         super(undefined, 0, 0, 400, 256);

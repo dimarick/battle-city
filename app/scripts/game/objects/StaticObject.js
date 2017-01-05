@@ -20,19 +20,12 @@ export default class StaticObject {
         this.currentState = 0;
     }
 
-    /**
-     * @param {Scene} scene
-     */
-    onAttach(scene) {
-        this.scene = scene;
-        if (this.width !== undefined && this.height !== undefined) {
-            scene.collisionEngine.attachStatic(this);
-        }
+    getBaseX() {
+        return this.x + this.width / 2;
     }
 
-    handleBullet(bullet, event) {
-        this.scene.detach(this);
-        this.scene.collisionEngine.detach(this);
+    getBaseY() {
+        return this.y + this.height / 2;
     }
 
     render(context, time) {

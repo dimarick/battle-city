@@ -10,6 +10,7 @@ import Commands from './input/Commands';
 import PlayerTankBirth from './objects/PlayerTankBirth';
 import StageMap, {mapStage1} from './objects/StageMap';
 import tiles from './tiles';
+import Staff from "./objects/blocks/Staff";
 
 export default class Game
 {
@@ -23,20 +24,10 @@ export default class Game
     start() {
         const scene = this._scene = new Scene(this._context, 'black');
 
-        const o7 = new StaticObject([
-            tiles.staff.normal
-        ], 0, 6*2, 12*2);
-
-        scene.attach(o7);
+        scene.attach(new Staff(6*2, 12*2));
 
         const map = new StageMap(mapStage1);
         map.attach(scene);
-
-        setTimeout(() => {
-            scene.attach(new Explosion(o7, new StaticObject([
-                tiles.staff.broken
-            ], 0, 6*2, 12*2)))
-        }, 4000);
 
         const tank1 = new PlayerTank(tiles.tank.yellow, 8, 24, TankDirection.up);
         const tank2 = new PlayerTank(tiles.tank.green, 16, 24, TankDirection.up);

@@ -1,6 +1,5 @@
 import DynamicObject from './DynamicObject';
 import Bullet from './Bullet';
-import {CollisionEvent} from '../collision/CollisionEngine';
 import {SceneEvents} from '../Scene';
 
 export class TankDirection {}
@@ -34,31 +33,11 @@ export default class Tank extends DynamicObject {
     onAttach(scene) {
         this.scene = scene;
         this.detached = false;
-        scene.eventManager.subscribe(this, CollisionEvent.contact, this.onContact.bind(this));
         scene.collisionEngine.attachDynamic(this);
     }
 
-    /**
-     * @param {Scene} scene
-     */
-    onDetach(scene) {
+    onDetach() {
         this.detached = true;
-    }
-
-    /**
-     * @param {Tank} object
-     * @param {CollisionEvent} event
-     */
-    onContact(object, event) {
-        this.updatePosition(event.time);
-
-        if (event.allowedX !== undefined) {
-            this.x = event.allowedX;
-        }
-
-        if (event.allowedY !== undefined) {
-            this.y = event.allowedY;
-        }
     }
 
     changeDirection(speed, direction) {

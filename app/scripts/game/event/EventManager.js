@@ -33,7 +33,7 @@ export default class EventManager {
     }
 
     /**
-     * @param {object} object
+     * @param {object|object[]} object
      * @param {string} eventName
      * @param data
      */
@@ -44,6 +44,15 @@ export default class EventManager {
             listener(object, data, eventName, that);
             that.dispatching = undefined;
         })
+    }
+
+    /**
+     * @param {Iterable} objects
+     * @param {string} eventName
+     * @param data
+     */
+    dispatchMultiple(objects, eventName, data) {
+        objects.forEach((object) => this.dispatch(object, eventName, data));
     }
 
     /**

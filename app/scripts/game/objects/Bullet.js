@@ -1,7 +1,4 @@
 import DynamicObject from './DynamicObject';
-import Explosion from './Explosion';
-import StaticObject from './StaticObject';
-import {CollisionEvent} from '../collision/CollisionEngine';
 import tiles from '../tiles';
 
 export default class Bullet extends DynamicObject {
@@ -20,7 +17,7 @@ export default class Bullet extends DynamicObject {
         this.setVector(0.04 * 3 * xSpeed, 0.04 * 3 * ySpeed)
     }
 
-    getBangX() {
+    getBaseX() {
         if (this.xSpeed > 0) {
             return this.x + 4;
         } else if (this.xSpeed < 0) {
@@ -30,7 +27,7 @@ export default class Bullet extends DynamicObject {
         }
     }
 
-    getBangY() {
+    getBaseY() {
         if (this.ySpeed > 0) {
             return this.y + 4;
         } else if (this.ySpeed < 0) {
@@ -49,31 +46,6 @@ export default class Bullet extends DynamicObject {
 
         this.scene.collisionEngine.attachDynamic(this);
         this.scene.collisionEngine.check(this, this.updateTime);
-        this.scene.eventManager.subscribe(this, CollisionEvent.contact, (object, event) => this.onContact(event));
-    }
-
-    /**
-     * @param {CollisionEvent} event
-     */
-    onContact(event) {
-        this.updatePosition(event.time);
-
-        if (event.allowedX !== undefined) {
-            this.x = event.allowedX;
-        }
-
-        if (event.allowedY !== undefined) {
-            this.y = event.allowedY;
-        }
-
-        event.targetObject.forEach((target) => {
-            if (target.handleBullet !== undefined) {
-                target.handleBullet(this, event);
-            }
-        });
-
-        this.scene.detach(this);
-        this.scene.attach(new Explosion(new StaticObject([], 0, this.getBangX() / 8 - 1, this.getBangY() / 8 - 1, 2, 2), undefined, 1));
     }
 
     /**
@@ -83,7 +55,6 @@ export default class Bullet extends DynamicObject {
         scene.collisionEngine.detach(this);
     }
 
-
     render(context, time) {
         this.updatePosition(time);
 
@@ -91,7 +62,6 @@ export default class Bullet extends DynamicObject {
 
         tile.renderFragment(context, this.x, this.y);
     }
-
 
     /**
      * @returns {TankStateTileRegistry}

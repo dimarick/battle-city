@@ -21,8 +21,6 @@ export default class CollisionEngine {
         const that = this;
     }
 
-
-
     /**
      * @param object
      */
@@ -92,7 +90,7 @@ export default class CollisionEngine {
         }
 
         if (allowedX !== undefined || allowedY !== undefined) {
-            this.scene.eventManager.dispatch(object, CollisionEvent.contact, new CollisionEvent(object, [this.scene], time, allowedX, allowedY));
+            return [[this.scene, time, allowedX, allowedY]];
         }
 
         return [];
@@ -155,8 +153,7 @@ export default class CollisionEngine {
         }
 
 
-        const mergedEvent = collisions.reduce((mergedEvent, collisionEvent) =>
-        {
+        const mergedEvent = collisions.reduce((mergedEvent, collisionEvent) => {
             const [target, time, allowedX, allowedY] = collisionEvent;
 
             mergedEvent.allowedX = this._mergePositionCoordinate(allowedX, mergedEvent.allowedX, object.xSpeed);
@@ -173,7 +170,7 @@ export default class CollisionEngine {
             return mergedEvent;
         }, new CollisionEvent(object, []));
 
-        this.scene.eventManager.dispatch(object, CollisionEvent.contact, mergedEvent);
+        this.scene.eventManager.dispatchMultiple([object].concat(mergedEvent.targetObject), CollisionEvent.contact, mergedEvent);
     }
 
     _mergePositionCoordinate(position1, position2, speed) {

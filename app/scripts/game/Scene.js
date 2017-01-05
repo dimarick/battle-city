@@ -1,5 +1,9 @@
 import EventManager from './event/EventManager';
-import CollisionEngine from './collision/CollisionEngine';
+import CollisionEngine, {CollisionEvent} from './collision/CollisionEngine';
+import SceneUtils from './scene/SceneUtils';
+import Tank from './objects/Tank';
+import Bullet from './objects/Bullet';
+import Explosion from './objects/Explosion';
 
 export class SceneEvents {}
 SceneEvents.attach = 'scene.attach';
@@ -14,7 +18,9 @@ export default class Scene
         this._start = performance.now();
         this._framecounter = 0;
         this.eventManager = new EventManager();
+        this.eventManager.subscribe(this, CollisionEvent.contact, (object, event) => this.handleCollision(event));
         this.collisionEngine = new CollisionEngine(this, 1000 / 120);
+        this.utils = new SceneUtils(this);
         this.width = 13*16;
         this.height = 13*16;
 
@@ -45,7 +51,7 @@ export default class Scene
 
     detach(object) {
         if (!this._objects.has(object)) {
-            return;
+            return false;
         }
 
         if (object.onDetach !== undefined) {
@@ -55,6 +61,19 @@ export default class Scene
         this.eventManager.dispatch(object, SceneEvents.detach, {scene: this});
 
         this._objects.delete(object);
+
+        return true;
+    }
+
+    /**
+     * @param {CollisionEvent} event
+     */
+    handleCollision(event) {
+        if (event.sourceObject instanceof Bullet) {
+            this.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
+        } else if (event.sourceObject instanceof Tank) {
+            this.utils.handleBarrier(event);
+        }
     }
 
     render(time) {
