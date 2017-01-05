@@ -1,6 +1,6 @@
 export default class EventManager {
     constructor() {
-        this.listeners = new Map();
+        this.listeners = new WeakMap();
         this.dispatching = undefined;
     }
 

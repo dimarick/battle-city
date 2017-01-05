@@ -1,5 +1,4 @@
 export default class StaticObject {
-
     /**
      * @param {Tile[]} tiles
      * @param {int} blinkInterval ms
@@ -25,9 +24,15 @@ export default class StaticObject {
      * @param {Scene} scene
      */
     onAttach(scene) {
+        this.scene = scene;
         if (this.width !== undefined && this.height !== undefined) {
             scene.collisionEngine.attachStatic(this);
         }
+    }
+
+    handleBullet(bullet, event) {
+        this.scene.detach(this);
+        this.scene.collisionEngine.detach(this);
     }
 
     render(context, time) {

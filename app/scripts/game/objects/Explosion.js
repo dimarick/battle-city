@@ -6,10 +6,12 @@ export default class Explosion {
     /**
      * @param {StaticObject} targetObject
      * @param {StaticObject} nextObject
+     * @param {int} stages
      */
-    constructor(targetObject, nextObject) {
+    constructor(targetObject, nextObject, stages) {
         this.targetObject = targetObject;
         this.nextObject = nextObject;
+        this.stages = stages;
     }
 
     /**
@@ -17,7 +19,7 @@ export default class Explosion {
      * @param {Scene} scene
      */
     onAttach(scene) {
-        const explosion = new OnceObject(tiles.explosion.stage, 120, this.targetObject.x, this.targetObject.y);
+        const explosion = new OnceObject(tiles.explosion.stage.slice(0, this.stages), 120, this.targetObject.x, this.targetObject.y);
 
         scene.detach(this.targetObject);
         scene.attach(explosion);
@@ -32,7 +34,10 @@ export default class Explosion {
      */
     onExplosionDetach(object, data, eventName, eventManager) {
         eventManager.unsubscribe(object, eventName);
-        data.scene.attach(this.nextObject);
+
+        if (this.nextObject !== undefined) {
+            data.scene.attach(this.nextObject);
+        }
     }
 
     render() {}

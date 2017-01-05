@@ -45,7 +45,8 @@ export default class Game
             38: Commands.up,
             40: Commands.down,
             37: Commands.left,
-            39: Commands.right
+            39: Commands.right,
+            96: Commands.fire
         }, tank1, scene.eventManager);
 
         keyboard.attach();
@@ -54,7 +55,8 @@ export default class Game
             87: Commands.up,
             83: Commands.down,
             65: Commands.left,
-            68: Commands.right
+            68: Commands.right,
+            32: Commands.fire
         }, tank2, scene.eventManager);
 
         keyboardP2.attach();

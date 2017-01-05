@@ -34,6 +34,9 @@ export default class PlayerTank extends Tank {
         scene.eventManager.subscribe(this, Commands.left.stop, () => commandGroup.stopCommand('left'));
         scene.eventManager.subscribe(this, Commands.right.start, () => commandGroup.startCommand('right'));
         scene.eventManager.subscribe(this, Commands.right.stop, () => commandGroup.stopCommand('right'));
+
+        scene.eventManager.subscribe(this, Commands.fire.start, () => this.commandFireStart());
+        scene.eventManager.subscribe(this, Commands.fire.stop, () => this.commandFireStop());
     }
 
     commandUp() {
@@ -50,5 +53,26 @@ export default class PlayerTank extends Tank {
     }
     commandStop() {
         this.changeDirection(0);
+    }
+
+    commandFireStart() {
+        if (this.firing !== undefined) {
+            return;
+        }
+
+        this.firing = setInterval(() => this.fire(), 1000 / 4);
+        this.fire();
+    }
+    commandFireStop() {
+        clearInterval(this.firing);
+
+        delete this.firing;
+    }
+
+    finishFire(object) {
+        super.finishFire(object);
+        if (this.firing !== undefined) {
+            this.fire();
+        }
     }
 }

@@ -70,31 +70,28 @@ export default class CollisionEngine {
      * @private
      */
     _checkScene(object, time) {
-        const that = this;
-        this.dynamicObjects.forEach((object) => {
-            let allowedX, allowedY;
+        let allowedX, allowedY;
 
-            const interval = (time - object.updateTime);
-            if (object.x + object.xSpeed * interval < 0) {
-                allowedX = 0;
-            }
+        const interval = (time - object.updateTime);
+        if (object.x + object.xSpeed * interval < 0) {
+            allowedX = 0;
+        }
 
-            if (object.y + object.ySpeed * interval < 0) {
-                allowedY = 0;
-            }
+        if (object.y + object.ySpeed * interval < 0) {
+            allowedY = 0;
+        }
 
-            if (allowedX === undefined && (object.x + object.xSpeed * interval + object.width) > that.scene.width) {
-                allowedX = that.scene.width - object.width;
-            }
+        if (allowedX === undefined && (object.x + object.xSpeed * interval + object.width) > this.scene.width) {
+            allowedX = this.scene.width - object.width;
+        }
 
-            if (allowedY === undefined && (object.y + object.ySpeed * interval + object.height) > that.scene.height) {
-                allowedY = that.scene.height - object.height;
-            }
+        if (allowedY === undefined && (object.y + object.ySpeed * interval + object.height) > this.scene.height) {
+            allowedY = this.scene.height - object.height;
+        }
 
-            if (allowedX !== undefined || allowedY !== undefined) {
-                that.scene.eventManager.dispatch(object, CollisionEvent.contact, new CollisionEvent(object, that.scene, time, allowedX, allowedY));
-            }
-        });
+        if (allowedX !== undefined || allowedY !== undefined) {
+            this.scene.eventManager.dispatch(object, CollisionEvent.contact, new CollisionEvent(object, this.scene, time, allowedX, allowedY));
+        }
     }
 
     /**
@@ -104,41 +101,39 @@ export default class CollisionEngine {
      */
     _checkStatic(object, time) {
         const that = this;
-        this.dynamicObjects.forEach((object) => {
-            that.staticObjects.forEach((wall) => {
-                let allowedX, allowedY;
-                const interval = (time - object.updateTime);
+        that.staticObjects.forEach((wall) => {
+            let allowedX, allowedY;
+            const interval = (time - object.updateTime);
 
-                if (
-                    (object.x + object.xSpeed * interval + object.width > wall.x * 8) &&
-                    (object.x + object.xSpeed * interval < wall.x * 8 + wall.width) &&
-                    (object.y + object.height > wall.y * 8) &&
-                    (object.y < wall.y * 8 + wall.height)
-                ) {
-                    if (object.xSpeed > 0) {
-                        allowedX = wall.x * 8 - object.width;
-                    } else if (object.xSpeed < 0) {
-                        allowedX = wall.x * 8 + wall.width;
-                    }
+            if (
+                (object.x + object.xSpeed * interval + object.width > wall.x * 8) &&
+                (object.x + object.xSpeed * interval < wall.x * 8 + wall.width) &&
+                (object.y + object.height > wall.y * 8) &&
+                (object.y < wall.y * 8 + wall.height)
+            ) {
+                if (object.xSpeed > 0) {
+                    allowedX = wall.x * 8 - object.width;
+                } else if (object.xSpeed < 0) {
+                    allowedX = wall.x * 8 + wall.width;
                 }
+            }
 
-                if (
-                    (object.y + object.ySpeed * interval + object.height > wall.y * 8) &&
-                    (object.y + object.ySpeed * interval < wall.y * 8 + wall.height) &&
-                    (object.x + object.width > wall.x * 8) &&
-                    (object.x < wall.x * 8 + wall.width)
-                ) {
-                    if (object.ySpeed > 0) {
-                        allowedY = wall.y * 8 - object.height;
-                    } else if (object.ySpeed < 0) {
-                        allowedY = wall.y * 8 + wall.height;
-                    }
+            if (
+                (object.y + object.ySpeed * interval + object.height > wall.y * 8) &&
+                (object.y + object.ySpeed * interval < wall.y * 8 + wall.height) &&
+                (object.x + object.width > wall.x * 8) &&
+                (object.x < wall.x * 8 + wall.width)
+            ) {
+                if (object.ySpeed > 0) {
+                    allowedY = wall.y * 8 - object.height;
+                } else if (object.ySpeed < 0) {
+                    allowedY = wall.y * 8 + wall.height;
                 }
+            }
 
-                if (allowedX !== undefined || allowedY !== undefined) {
-                    that.scene.eventManager.dispatch(object, CollisionEvent.contact, new CollisionEvent(object, wall, time, allowedX, allowedY));
-                }
-            });
+            if (allowedX !== undefined || allowedY !== undefined) {
+                that.scene.eventManager.dispatch(object, CollisionEvent.contact, new CollisionEvent(object, wall, time, allowedX, allowedY));
+            }
         });
     }
 }

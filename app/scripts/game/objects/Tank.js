@@ -1,5 +1,7 @@
 import DynamicObject from './DynamicObject';
+import Bullet from './Bullet';
 import {CollisionEvent} from '../collision/CollisionEngine';
+import {SceneEvents} from '../Scene';
 
 export class TankDirection {}
 TankDirection.up = 'up';
@@ -21,6 +23,9 @@ export default class Tank extends DynamicObject {
         this.setSpeed(0, direction);
         this.width = 16;
         this.height = 16;
+        this.maxBullets = 2;
+        this.bullets = new Set;
+        this.detached = true;
     }
 
     /**
@@ -28,8 +33,16 @@ export default class Tank extends DynamicObject {
      */
     onAttach(scene) {
         this.scene = scene;
+        this.detached = false;
         scene.eventManager.subscribe(this, CollisionEvent.contact, this.onContact, this);
         scene.collisionEngine.attachDynamic(this);
+    }
+
+    /**
+     * @param {Scene} scene
+     */
+    onDetach(scene) {
+        this.detached = true;
     }
 
     /**
@@ -38,7 +51,6 @@ export default class Tank extends DynamicObject {
      */
     onContact(object, event) {
         this.updatePosition(event.time);
-        console.log(this, event);
 
         if (event.allowedX !== undefined) {
             this.x = event.allowedX;
@@ -87,6 +99,26 @@ export default class Tank extends DynamicObject {
         }
     }
 
+    fire() {
+        if (this._canFire()) {
+            // Run collision detection for case when tank must be already destroyed
+            this.scene.collisionEngine.check(this.scene.getTime());
+
+            if (this.detached) {
+                return;
+            }
+
+            const bullet = this._getBullet();
+            this.scene.attach(bullet);
+            this.bullets.add(bullet);
+            this.scene.eventManager.subscribe(bullet, SceneEvents.detach, (object) => setTimeout(() => this.finishFire(object), 200));
+        }
+    }
+
+    finishFire(object) {
+        this.bullets.delete(object);
+    }
+
     render(context, time) {
         this.updatePosition(time);
 
@@ -94,6 +126,23 @@ export default class Tank extends DynamicObject {
         const tile = Math.floor(time / 60 * (this.xSpeed + this.ySpeed ? 1 : 0)) % 2 === 0 ? directionTile.odd : directionTile.even;
 
         tile.renderFragment(context, this.x, this.y);
+    }
+
+    _getBullet() {
+        switch (this.direction) {
+            case TankDirection.up:
+                return new Bullet(this.x + 8, this.y, 0, -1);
+                break;
+            case TankDirection.down:
+                return new Bullet(this.x + 8, this.y + this.height, 0, 1);
+                break;
+            case TankDirection.left:
+                return new Bullet(this.x, this.y + 8, -1, 0);
+                break;
+            case TankDirection.right:
+                return new Bullet(this.x + this.width, this.y + 8, 1, 0);
+                break;
+        }
     }
 
     /**
@@ -135,5 +184,9 @@ export default class Tank extends DynamicObject {
         }
 
         return false;
+    }
+
+    _canFire() {
+        return this.bullets.size < this.maxBullets;
     }
 }

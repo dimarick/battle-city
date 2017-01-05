@@ -236,7 +236,7 @@ class ExplosionTileRegistry extends LargeTile {
     }
 }
 
-class BirthTailRegistry extends LargeTile {
+class BirthTileRegistry extends LargeTile {
     constructor(parent) {
         super(parent, 16, 6, 4, 1);
 
@@ -249,6 +249,16 @@ class BirthTailRegistry extends LargeTile {
     }
 }
 
+class BulletTileRegistry extends Tile {
+    constructor(parent) {
+        super(parent, 322, 102, 27, 4);
+
+        this.up = new Tile(this, 0, 0, 4, 4);
+        this.left = new Tile(this, 8, 0, 4, 4);
+        this.down = new Tile(this, 16, 0, 4, 4);
+        this.right = new Tile(this, 24, 0, 4, 4);
+    }
+}
 class TileRegistry extends Tile {
     constructor() {
         super(undefined, 0, 0, 400, 256);
@@ -260,8 +270,9 @@ class TileRegistry extends Tile {
         this.block = new BlockTileRegistry(this);
         this.explosion = new ExplosionTileRegistry(this);
         this.staff = new StaffTileRegistry(this);
-        this.birth = new BirthTailRegistry(this);
-        this.null = new NullTile(this)
+        this.birth = new BirthTileRegistry(this);
+        this.bullet = new BulletTileRegistry(this);
+        this.null = new NullTile(this);
     }
 
     getImage() {
