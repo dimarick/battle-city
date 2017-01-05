@@ -8,6 +8,6 @@ export default class Explosion {
     }
 
     static explodeAnimationSmall() {
-        return new OnceObject(tiles.explosion.stage.slice(1, 2), 80, -1000, -1000);
+        return new OnceObject(tiles.explosion.stage.slice(0, 1), 80, -1000, -1000);
     }
 }

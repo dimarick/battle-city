@@ -1,6 +1,8 @@
 import DynamicObject from './DynamicObject';
 import Bullet from './Bullet';
 import {SceneEvents} from '../Scene';
+import {CollisionEvent} from '../collision/CollisionEngine';
+import Explosion from './Explosion';
 
 export class TankDirection {}
 TankDirection.up = 'up';
@@ -34,10 +36,31 @@ export default class Tank extends DynamicObject {
         this.scene = scene;
         this.detached = false;
         scene.collisionEngine.attachDynamic(this);
+        scene.eventManager.subscribe(this, CollisionEvent.contact, (object, event) => this.handleCollision(event));
     }
 
-    onDetach() {
+    /**
+     * @param {CollisionEvent} event
+     */
+    handleCollision(event) {
+        if (event.sourceObject instanceof Bullet) {
+            const animation = Explosion.explodeAnimationLarge();
+
+            animation.x = this.x / 8;
+            animation.y = this.y / 8;
+
+            this.scene.collisionEngine.detach(this);
+            this.scene.detach(this);
+            this.scene.attach(animation);
+            this.scene.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
+        } else if (event.sourceObject instanceof Tank) {
+            this.scene.utils.handleBarrier(event);
+        }
+    }
+
+    onDetach(scene) {
         this.detached = true;
+        scene.collisionEngine.detach(this);
     }
 
     changeDirection(speed, direction) {
@@ -88,9 +111,10 @@ export default class Tank extends DynamicObject {
             }
 
             const bullet = this._getBullet();
+            this.scene.eventManager.subscribe(bullet, SceneEvents.detach, (object) => setTimeout(() => this.finishFire(object), 200));
+
             this.scene.attach(bullet);
             this.bullets.add(bullet);
-            this.scene.eventManager.subscribe(bullet, SceneEvents.detach, (object) => setTimeout(() => this.finishFire(object), 200));
         }
     }
 
@@ -110,16 +134,16 @@ export default class Tank extends DynamicObject {
     _getBullet() {
         switch (this.direction) {
             case TankDirection.up:
-                return new Bullet(this.x + 8, this.y, 0, -1);
+                return new Bullet(this.x + this.width / 2, this.y - 4, 0, -1);
                 break;
             case TankDirection.down:
-                return new Bullet(this.x + 8, this.y + this.height, 0, 1);
+                return new Bullet(this.x + this.width / 2, this.y + this.height, 0, 1);
                 break;
             case TankDirection.left:
-                return new Bullet(this.x, this.y + 8, -1, 0);
+                return new Bullet(this.x - 4, this.y + this.height / 2, -1, 0);
                 break;
             case TankDirection.right:
-                return new Bullet(this.x + this.width, this.y + 8, 1, 0);
+                return new Bullet(this.x + this.width, this.y + this.height / 2, 1, 0);
                 break;
         }
     }

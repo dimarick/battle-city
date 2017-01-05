@@ -14,7 +14,7 @@ export default class Scene
     constructor(context, bgColor) {
         this._context = context;
         this._bgColor = bgColor;
-        this._objects = new Map;
+        this._objects = new Set;
         this._start = performance.now();
         this._framecounter = 0;
         this.eventManager = new EventManager();
@@ -40,7 +40,7 @@ export default class Scene
     }
 
     attach(object) {
-        this._objects.set(object, object);
+        this._objects.add(object);
 
         if (object.onAttach !== undefined) {
             object.onAttach(this);
@@ -82,7 +82,7 @@ export default class Scene
         this._context.fillStyle = this._bgColor;
         this._context.fillRect(0, 0, this.width * 3, this.height * 3);
 
-        this._objects.forEach((object) => {
+        [...this._objects].reverse().forEach((object) => {
             object.render(this._context, time)
         })
     }

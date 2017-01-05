@@ -45,7 +45,7 @@ export default class Bullet extends DynamicObject {
         this.updateTime = scene.getTime();
 
         this.scene.collisionEngine.attachDynamic(this);
-        this.scene.collisionEngine.check(this, this.updateTime);
+        this.scene.collisionEngine.checkObject(this, this.updateTime);
     }
 
     /**

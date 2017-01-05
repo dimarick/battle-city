@@ -61,6 +61,7 @@ export default class CollisionEngine {
         let collisions = [];
         collisions = collisions.concat(this._checkScene(object, time));
         collisions = collisions.concat(this._checkStatic(object, time));
+        collisions = collisions.concat(this._checkDynamic(object, time));
         this._dispatchCollisions(object, collisions);
     }
 
@@ -102,44 +103,105 @@ export default class CollisionEngine {
      * @private
      */
     _checkStatic(object, time) {
-        const that = this;
-        const collisions = [];
-        that.staticObjects.forEach((wall) => {
-            let allowedX, allowedY;
-            const interval = (time - object.updateTime);
-
-            if (
-                (object.x + object.xSpeed * interval + object.width > wall.x * 8) &&
-                (object.x + object.xSpeed * interval < wall.x * 8 + wall.width) &&
-                (object.y + object.height > wall.y * 8) &&
-                (object.y < wall.y * 8 + wall.height)
-            ) {
-                if (object.xSpeed > 0) {
-                    allowedX = wall.x * 8 - object.width;
-                } else if (object.xSpeed < 0) {
-                    allowedX = wall.x * 8 + wall.width;
-                }
-            }
-
-            if (
-                (object.y + object.ySpeed * interval + object.height > wall.y * 8) &&
-                (object.y + object.ySpeed * interval < wall.y * 8 + wall.height) &&
-                (object.x + object.width > wall.x * 8) &&
-                (object.x < wall.x * 8 + wall.width)
-            ) {
-                if (object.ySpeed > 0) {
-                    allowedY = wall.y * 8 - object.height;
-                } else if (object.ySpeed < 0) {
-                    allowedY = wall.y * 8 + wall.height;
-                }
-            }
-
-            if (allowedX !== undefined || allowedY !== undefined) {
-                collisions.push([wall, time, allowedX, allowedY]);
-            }
+        let collisions = [];
+        this.staticObjects.forEach((wall) => {
+            collisions = collisions.concat(this._checkStaticPair(object, wall, time));
         });
 
         return collisions;
+    }
+
+    /**
+     * @param object
+     * @param time
+     * @private
+     */
+    _checkDynamic(object, time) {
+        const that = this;
+        let collisions = [];
+        this.dynamicObjects.forEach((wall) => {
+            if (wall === object) {
+                return;
+            }
+
+            collisions = collisions.concat(that._checkDynamicPair(object, wall, time));
+        });
+
+        return collisions;
+    }
+
+    _checkStaticPair(object, wall, time) {
+        let allowedX, allowedY;
+        const interval = (time - object.updateTime);
+
+        if (
+            (object.x + object.xSpeed * interval + object.width > wall.x * 8) &&
+            (object.x + object.xSpeed * interval < wall.x * 8 + wall.width) &&
+            (object.y + object.height > wall.y * 8) &&
+            (object.y < wall.y * 8 + wall.height)
+        ) {
+            if (object.xSpeed > 0) {
+                allowedX = wall.x * 8 - object.width;
+            } else if (object.xSpeed < 0) {
+                allowedX = wall.x * 8 + wall.width;
+            }
+        }
+
+        if (
+            (object.y + object.ySpeed * interval + object.height > wall.y * 8) &&
+            (object.y + object.ySpeed * interval < wall.y * 8 + wall.height) &&
+            (object.x + object.width > wall.x * 8) &&
+            (object.x < wall.x * 8 + wall.width)
+        ) {
+            if (object.ySpeed > 0) {
+                allowedY = wall.y * 8 - object.height;
+            } else if (object.ySpeed < 0) {
+                allowedY = wall.y * 8 + wall.height;
+            }
+        }
+
+        if (allowedX !== undefined || allowedY !== undefined) {
+            return [[wall, time, allowedX, allowedY]];
+        }
+
+        return [];
+    }
+
+    _checkDynamicPair(object, wall, time) {
+        let allowedX, allowedY;
+        const interval = (time - object.updateTime);
+
+        if (
+            (object.x + object.xSpeed * interval + object.width > wall.x) &&
+            (object.x + object.xSpeed * interval < wall.x + wall.width) &&
+            (object.y + object.height > wall.y) &&
+            (object.y < wall.y + wall.height)
+        ) {
+            if (object.xSpeed > 0) {
+                allowedX = wall.x - object.width;
+            } else if (object.xSpeed < 0) {
+                allowedX = wall.x + wall.width;
+            }
+        }
+
+        if (
+            (object.y + object.ySpeed * interval + object.height > wall.y) &&
+            (object.y + object.ySpeed * interval < wall.y + wall.height) &&
+            (object.x + object.width > wall.x) &&
+            (object.x < wall.x + wall.width)
+        ) {
+            if (object.ySpeed > 0) {
+                allowedY = wall.y - object.height;
+            } else if (object.ySpeed < 0) {
+                allowedY = wall.y + wall.height;
+            }
+        }
+
+        if (allowedX !== undefined || allowedY !== undefined) {
+            return [[wall, time, allowedX, allowedY]];
+        }
+
+        return [];
     }
 
     /**
