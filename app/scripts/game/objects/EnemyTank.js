@@ -71,7 +71,7 @@ export default class EnemyTank extends Tank {
      * @param {Scene} scene
      */
     tick(scene) {
-        if (Math.random() < 1 / 64 && this.lastDirectionChange + 1000 < scene.getTime()) {
+        if (Math.random() < 1 / 64 && this.lastDirectionChange + 300 < scene.getTime()) {
             this.autoChangeDirection(scene);
         } else if (Math.random() < 1 / 16) {
             this.fire();
