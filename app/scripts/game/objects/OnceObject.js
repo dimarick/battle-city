@@ -25,6 +25,6 @@ export default class OnceObject extends StaticObject {
             this.lastStateChange = time;
         }
 
-        this.tiles[this.currentState].renderFragment(context, this.x * 8, this.y * 8);
+        this.tiles[this.currentState].renderFragment(context, this.x, this.y);
     }
 }

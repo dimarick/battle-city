@@ -125,7 +125,7 @@ export default class CollisionEngine {
         const centerX = object.x + object.width / 2;
         const centerY = object.y + object.height / 2;
         this.staticObjects.forEach((wall) => {
-            if (Math.abs(wall.x * 8 - centerX) > 64 || Math.abs(wall.y * 8 - centerY) > 64) {
+            if (Math.abs(wall.x - centerX) > 64 || Math.abs(wall.y - centerY) > 64) {
                 return;
             }
             collisions = collisions.concat(this._checkStaticPair(object, wall, time));
@@ -175,28 +175,28 @@ export default class CollisionEngine {
         const interval = (time - object.updateTime);
 
         if (
-            (object.x + object.xSpeed * interval + object.width > wall.x * 8) &&
-            (object.x + object.xSpeed * interval < wall.x * 8 + wall.width) &&
-            (object.y + object.height > wall.y * 8) &&
-            (object.y < wall.y * 8 + wall.height)
+            (object.x + object.xSpeed * interval + object.width > wall.x) &&
+            (object.x + object.xSpeed * interval < wall.x + wall.width) &&
+            (object.y + object.height > wall.y) &&
+            (object.y < wall.y + wall.height)
         ) {
             if (object.xSpeed > 0) {
-                allowedX = wall.x * 8 - object.width;
+                allowedX = wall.x - object.width;
             } else if (object.xSpeed < 0) {
-                allowedX = wall.x * 8 + wall.width;
+                allowedX = wall.x + wall.width;
             }
         }
 
         if (
-            (object.y + object.ySpeed * interval + object.height > wall.y * 8) &&
-            (object.y + object.ySpeed * interval < wall.y * 8 + wall.height) &&
-            (object.x + object.width > wall.x * 8) &&
-            (object.x < wall.x * 8 + wall.width)
+            (object.y + object.ySpeed * interval + object.height > wall.y) &&
+            (object.y + object.ySpeed * interval < wall.y + wall.height) &&
+            (object.x + object.width > wall.x) &&
+            (object.x < wall.x + wall.width)
         ) {
             if (object.ySpeed > 0) {
-                allowedY = wall.y * 8 - object.height;
+                allowedY = wall.y - object.height;
             } else if (object.ySpeed < 0) {
-                allowedY = wall.y * 8 + wall.height;
+                allowedY = wall.y + wall.height;
             }
         }
 

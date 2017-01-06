@@ -57,8 +57,8 @@ export default class StageMap {
 
         for(let i = 0; i*2 < map.length; i++) {
             const blockType = map.substr(i*2, 2);
-            const x = i % 26;
-            const y = Math.floor(i / 26);
+            const x = i % 26 * 8;
+            const y = Math.floor(i / 26) * 8;
 
             switch (blockType) {
                 case '  ':

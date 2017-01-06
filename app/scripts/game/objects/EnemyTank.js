@@ -94,6 +94,8 @@ export default class EnemyTank extends Tank {
             this.directionSuggestions[TankDirection.right] *= 4;
         }
 
+
+
         this.directionSuggestions[this.direction] *= 2;
 
         const direction = EnemyTank.randomElementbyProbabilities(this.directionSuggestions);

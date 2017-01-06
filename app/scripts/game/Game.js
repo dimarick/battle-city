@@ -23,7 +23,7 @@ export default class Game
     start() {
         const scene = this._scene = new Scene(this, this._context);
 
-        scene.attach(new Staff(6*2, 12*2));
+        scene.attach(new Staff(6*16, 12*16));
 
         const map = new StageMap(mapStage1);
         map.attach(scene);
@@ -58,18 +58,18 @@ export default class Game
      * @param {Scene} scene
      */
     spawnPlayer1(scene) {
-        this.player1 = new PlayerTank(tiles.tank.yellow, 8, 24, TankDirection.up);
+        this.player1 = new PlayerTank(tiles.tank.yellow, 8 * 8, 24 * 8, TankDirection.up);
         this.keyboard1.attach(this.player1);
-        scene.attach(new PlayerTankBirth(this.player1, this.player1.x / 8, this.player1.y / 8));
+        scene.attach(new PlayerTankBirth(this.player1, this.player1.x, this.player1.y));
     }
 
     /**
      * @param {Scene} scene
      */
     spawnPlayer2(scene) {
-        this.player2 = new PlayerTank(tiles.tank.green, 16, 24, TankDirection.up);
+        this.player2 = new PlayerTank(tiles.tank.green, 16 * 8, 24 * 8, TankDirection.up);
         this.keyboard2.attach(this.player2);
-        scene.attach(new PlayerTankBirth(this.player2, this.player2.x / 8, this.player2.y / 8));
+        scene.attach(new PlayerTankBirth(this.player2, this.player2.x, this.player2.y));
     }
 
     spawnEnemy(scene) {

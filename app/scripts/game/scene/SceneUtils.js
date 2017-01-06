@@ -28,8 +28,8 @@ export default class SceneUtils {
     handleDestroy(object, animation) {
         if (this.scene.detach(object)) {
             if (animation !== undefined) {
-                animation.x = object.getBaseX() / 8 - 1;
-                animation.y = object.getBaseY() / 8 - 1;
+                animation.x = object.getBaseX() - 8;
+                animation.y = object.getBaseY() - 8;
                 this.scene.attach(animation);
             }
         }

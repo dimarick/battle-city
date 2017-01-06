@@ -46,8 +46,8 @@ export default class Tank extends DynamicObject {
         if (event.sourceObject instanceof Bullet && event.sourceObject.owner !== this) {
             const animation = Explosion.explodeAnimationLarge();
 
-            animation.x = this.x / 8;
-            animation.y = this.y / 8;
+            animation.x = this.x;
+            animation.y = this.y;
 
             this.scene.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
 
@@ -73,8 +73,8 @@ export default class Tank extends DynamicObject {
     }
 
     setPosition(x, y) {
-        this.x = x * 8;
-        this.y = y * 8;
+        this.x = x;
+        this.y = y;
     }
 
     setSpeed(speed, direction) {
