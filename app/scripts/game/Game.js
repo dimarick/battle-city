@@ -51,7 +51,7 @@ export default class Game
         this.enemyCount = 0;
         this.enemyMaxCount = 20;
 
-        setInterval(() => this.spawnEnemy(scene), 800);
+        setInterval(() => this.spawnEnemy(scene), 1000);
     }
 
     /**
@@ -73,6 +73,10 @@ export default class Game
     }
 
     spawnEnemy(scene) {
+        this.enemyCount++;
+        if (this.enemyCount >= this.enemyMaxCount) {
+            return;
+        }
         const spawnPoint = Math.floor(Math.random() * 13) * 2;
         const tank = new EnemyTank(spawnPoint, 0, TankDirection.down);
         tank.setSpeed(1);

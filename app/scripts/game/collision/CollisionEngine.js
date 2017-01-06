@@ -18,7 +18,16 @@ export default class CollisionEngine {
         this.staticObjects = new Set();
         this.dynamicObjects = new Set();
         this.scene = scene;
-        const that = this;
+        this.stat = {
+            objects: {
+                stat: 0,
+                dyn: 0
+            },
+            fullScan: 0,
+            objectScan: 0,
+            pairScan: 0,
+            events: 0
+        };
     }
 
     /**
@@ -26,6 +35,7 @@ export default class CollisionEngine {
      */
     attachStatic(object) {
         this.staticObjects.add(object);
+        this.stat.objects.stat++;
     }
 
     /**
@@ -33,20 +43,27 @@ export default class CollisionEngine {
      */
     attachDynamic(object) {
         this.dynamicObjects.add(object);
+        this.stat.objects.dyn++;
     }
 
     /**
      * @param object
      */
     detach(object) {
-        this.staticObjects.delete(object);
-        this.dynamicObjects.delete(object);
+        if (this.staticObjects.has(object)) {
+            this.staticObjects.delete(object);
+            this.stat.objects.stat--;
+        } else if (this.dynamicObjects.has(object)) {
+            this.dynamicObjects.delete(object);
+            this.stat.objects.dyn--;
+        }
     }
 
     /**
      * @param time
      */
     check(time) {
+        this.stat.fullScan++;
         const that = this;
         this.dynamicObjects.forEach((object) => {
             that.checkObject(object, time);
@@ -58,6 +75,7 @@ export default class CollisionEngine {
      * @param time
      */
     checkObject(object, time) {
+        this.stat.objectScan++;
         let collisions = [];
         collisions = collisions.concat(this._checkScene(object, time));
         collisions = collisions.concat(this._checkStatic(object, time));
@@ -104,7 +122,12 @@ export default class CollisionEngine {
      */
     _checkStatic(object, time) {
         let collisions = [];
+        const centerX = object.x + object.width / 2;
+        const centerY = object.y + object.height / 2;
         this.staticObjects.forEach((wall) => {
+            if (Math.abs(wall.x * 8 - centerX) > 64 || Math.abs(wall.y * 8 - centerY) > 64) {
+                return;
+            }
             collisions = collisions.concat(this._checkStaticPair(object, wall, time));
         });
 
@@ -119,8 +142,16 @@ export default class CollisionEngine {
     _checkDynamic(object, time) {
         const that = this;
         let collisions = [];
+
+        const centerX = object.x + object.width / 2;
+        const centerY = object.y + object.height / 2;
+
         this.dynamicObjects.forEach((wall) => {
             if (wall === object) {
+                return;
+            }
+
+            if (Math.abs(wall.x - centerX) > 72 || Math.abs(wall.y - centerY) > 72) {
                 return;
             }
 
@@ -139,6 +170,7 @@ export default class CollisionEngine {
     }
 
     _checkStaticPair(object, wall, time) {
+        this.stat.pairScan++;
         let allowedX, allowedY;
         const interval = (time - object.updateTime);
 
@@ -176,6 +208,7 @@ export default class CollisionEngine {
     }
 
     _checkDynamicPair(object, wall, time) {
+        this.stat.pairScan++;
         let allowedX, allowedY;
         const interval = (time - object.updateTime);
 
@@ -222,6 +255,7 @@ export default class CollisionEngine {
             return;
         }
 
+        this.stat.events++;
 
         const mergedEvent = collisions.reduce((mergedEvent, collisionEvent) => {
             const [target, time, allowedX, allowedY] = collisionEvent;

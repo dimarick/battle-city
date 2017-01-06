@@ -1,10 +1,6 @@
 import Tank, {TankDirection} from './Tank';
 import tiles from '../tiles';
 import Bullet from "./Bullet";
-import Staff, {StaffState} from "./blocks/Staff";
-import Water from "./blocks/Water";
-import Concrete from "./blocks/Concrete";
-import Brick from "./blocks/Brick";
 import PlayerTank from "./PlayerTank";
 
 export default class EnemyTank extends Tank {
@@ -17,7 +13,8 @@ export default class EnemyTank extends Tank {
             tiles.tank.white.power
         ]), x, y, direction);
 
-        this.previousDirection = direction;
+        this.directionSuggestions = {};
+        this.resetSuggestions();
     }
 
     /**
@@ -41,7 +38,7 @@ export default class EnemyTank extends Tank {
             return true;
         }
 
-        if (object instanceof Staff && object.currentState !== StaffState.broken) {
+        if (object instanceof EnemyTank) {
             return true;
         }
 
@@ -58,12 +55,9 @@ export default class EnemyTank extends Tank {
     handleCollision(event) {
         super.handleCollision(event);
 
-        if (this.throwOnCollision === true) {
-            throw new Error('collision_not_allowed')
-        }
-
         if (event.sourceObject === this) {
-            this.autoChangeDirection(this.scene);
+            this.directionSuggestions[this.direction] = 0;
+            this.autoChangeDirection(this.scene, event.time);
         }
     }
 
@@ -72,7 +66,7 @@ export default class EnemyTank extends Tank {
      */
     tick(scene) {
         if (Math.random() < 1 / 64 && this.lastDirectionChange + 300 < scene.getTime()) {
-            this.autoChangeDirection(scene);
+            this.autoChangeDirection(scene, time);
         } else if (Math.random() < 1 / 16) {
             this.fire();
         }
@@ -80,49 +74,87 @@ export default class EnemyTank extends Tank {
 
     /**
      * @param {Scene} scene
-     * @param suggestDirections
+     * @param {int} time
      */
-    autoChangeDirection(scene, suggestDirections) {
-        if (suggestDirections === undefined) {
-            suggestDirections = [];
-            if (Math.round(this.x) % 8 === 0) {
-                suggestDirections = suggestDirections.concat([TankDirection.up, TankDirection.down]);
-            }
-            if (Math.round(this.y) % 8 === 0) {
-                suggestDirections = suggestDirections.concat([TankDirection.left, TankDirection.right]);
-            }
-            if (this.xSpeed !== 0) {
-                suggestDirections = suggestDirections.concat([TankDirection.up, TankDirection.down]);
-            }
-            if (this.ySpeed !== 0) {
-                suggestDirections = suggestDirections.concat([TankDirection.left, TankDirection.right]);
-            }
-            suggestDirections = suggestDirections.concat([TankDirection.down]);
+    autoChangeDirection(scene, time) {
+        if (Math.round(this.x) % 8 === 0) {
+            this.directionSuggestions[TankDirection.up] *= 4;
+            this.directionSuggestions[TankDirection.down] *= 4;
+        }
+        if (Math.round(this.y) % 8 === 0) {
+            this.directionSuggestions[TankDirection.left] *= 4;
+            this.directionSuggestions[TankDirection.right] *= 4;
+        }
+        if (this.xSpeed !== 0) {
+            this.directionSuggestions[TankDirection.up] *= 4;
+            this.directionSuggestions[TankDirection.down] *= 4;
+        }
+        if (this.ySpeed !== 0) {
+            this.directionSuggestions[TankDirection.left] *= 4;
+            this.directionSuggestions[TankDirection.right] *= 4;
         }
 
-        const currentDirection = this.direction;
+        this.directionSuggestions[this.direction] *= 2;
 
-        const direction = EnemyTank.randomElement(suggestDirections.filter((direction) => {
-            return currentDirection !== direction;
-        }));
+        const direction = EnemyTank.randomElementbyProbabilities(this.directionSuggestions);
 
-        if (currentDirection !== direction) {
-            this.throwOnCollision = true;
-            try {
-                const now = this.scene.getTime();
-                this.setSpeed(1, direction);
-                this.scene.collisionEngine.checkObject(this, now);
-                this.lastDirectionChange = scene.getTime();
-            } catch (e) {
-                if (e.message === 'collision_not_allowed') {
-                    this.autoChangeDirection(scene, suggestDirections.filter((a) => {return direction !== a}));
-                }
-            }
-            this.throwOnCollision = false;
+        if (this.direction !== direction) {
+            this.setSpeed(1, direction);
+            this.scene.collisionEngine.checkObject(this, time);
+            this.lastDirectionChange = scene.getTime();
         }
+
+        this.resetSuggestions();
     }
 
+    /**
+     * @param {Object} arr
+     * @returns {String}
+     */
     static randomElement(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    /**
+     * @param {Object} arr
+     * @returns {String}
+     */
+    static randomElementbyProbabilities(arr) {
+
+        let keys = [];
+        for(let key in arr) {
+            keys.push(key);
+        }
+
+        const probabilitySum = keys.reduce((sum, key) => {
+            return sum + arr[key];
+        }, 0);
+
+        if (probabilitySum === 0) {
+            return EnemyTank.randomElement(keys);
+        }
+
+        const randomValue = Math.random() * probabilitySum;
+
+        let selected = keys[keys.length - 1];
+
+        keys.reduce((sum, key) => {
+            const valueSum = sum + arr[key];
+
+            if (randomValue <= valueSum && randomValue >= sum) {
+                selected = key;
+            }
+
+            return valueSum;
+        }, 0);
+
+        return selected;
+    }
+
+    resetSuggestions() {
+        this.directionSuggestions[TankDirection.up] = 1;
+        this.directionSuggestions[TankDirection.down] = 1;
+        this.directionSuggestions[TankDirection.left] = 1;
+        this.directionSuggestions[TankDirection.right] = 1;
     }
 }
