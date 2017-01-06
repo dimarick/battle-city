@@ -46,6 +46,10 @@ export default class Keyboard
      * @param {KeyboardEvent} event
      */
     keydown(event) {
+        if (this.target === undefined) {
+            return false;
+        }
+
         if (this._isRepeated(event.keyCode)) {
             return false;
         }
@@ -63,6 +67,10 @@ export default class Keyboard
      * @param {KeyboardEvent} event
      */
     keyup(event) {
+        if (this.target === undefined) {
+            return false;
+        }
+
         const command = this.bindings[event.keyCode];
         if (command === undefined) {
             return false;

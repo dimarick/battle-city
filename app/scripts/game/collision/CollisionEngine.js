@@ -75,11 +75,17 @@ export default class CollisionEngine {
      * @param time
      */
     checkObject(object, time) {
+        // Неподвиждые объекты не могут создать коллизию
+        if (object.xSpeed === 0 && object.ySpeed === 0) {
+            return;
+        }
+
         this.stat.objectScan++;
         let collisions = [];
-        collisions = collisions.concat(this._checkScene(object, time));
-        collisions = collisions.concat(this._checkStatic(object, time));
-        collisions = collisions.concat(this._checkDynamic(object, time));
+        const virtualObjectFront = this._createVirtualObjectFront(object);
+        collisions = collisions.concat(this._checkScene(virtualObjectFront, time));
+        collisions = collisions.concat(this._checkStatic(virtualObjectFront, time));
+        collisions = collisions.concat(this._checkDynamic(virtualObjectFront, time));
         this._dispatchCollisions(object, collisions);
     }
 
@@ -101,11 +107,11 @@ export default class CollisionEngine {
         }
 
         if (allowedX === undefined && (object.x + object.xSpeed * interval + object.width) > this.scene.width) {
-            allowedX = this.scene.width - object.width;
+            allowedX = this.scene.width - object.real.width;
         }
 
         if (allowedY === undefined && (object.y + object.ySpeed * interval + object.height) > this.scene.height) {
-            allowedY = this.scene.height - object.height;
+            allowedY = this.scene.height - object.real.height;
         }
 
         if (allowedX !== undefined || allowedY !== undefined) {
@@ -147,7 +153,7 @@ export default class CollisionEngine {
         const centerY = object.y + object.height / 2;
 
         this.dynamicObjects.forEach((wall) => {
-            if (wall === object) {
+            if (wall === object.real) {
                 return;
             }
 
@@ -155,11 +161,11 @@ export default class CollisionEngine {
                 return;
             }
 
-            if (object.supportsDynamicCollision && !object.supportsDynamicCollision(wall)) {
+            if (object.real.supportsDynamicCollision && !object.real.supportsDynamicCollision(wall)) {
                 return;
             }
 
-            if (wall.supportsDynamicCollision && !wall.supportsDynamicCollision(object)) {
+            if (wall.supportsDynamicCollision && !wall.supportsDynamicCollision(object.real)) {
                 return;
             }
 
@@ -173,28 +179,30 @@ export default class CollisionEngine {
         this.stat.pairScan++;
         let allowedX, allowedY;
         const interval = (time - object.updateTime);
+        const objectNextX = object.x + object.xSpeed * interval;
+        const objectNextY = object.y + object.ySpeed * interval;
 
         if (
-            (object.x + object.xSpeed * interval + object.width > wall.x) &&
-            (object.x + object.xSpeed * interval < wall.x + wall.width) &&
+            (objectNextX > wall.x) &&
+            (objectNextX < wall.x + wall.width) &&
             (object.y + object.height > wall.y) &&
             (object.y < wall.y + wall.height)
         ) {
             if (object.xSpeed > 0) {
-                allowedX = wall.x - object.width;
+                allowedX = wall.x - object.real.width;
             } else if (object.xSpeed < 0) {
                 allowedX = wall.x + wall.width;
             }
         }
 
         if (
-            (object.y + object.ySpeed * interval + object.height > wall.y) &&
-            (object.y + object.ySpeed * interval < wall.y + wall.height) &&
+            (objectNextY > wall.y) &&
+            (objectNextY < wall.y + wall.height) &&
             (object.x + object.width > wall.x) &&
             (object.x < wall.x + wall.width)
         ) {
             if (object.ySpeed > 0) {
-                allowedY = wall.y - object.height;
+                allowedY = wall.y - object.real.height;
             } else if (object.ySpeed < 0) {
                 allowedY = wall.y + wall.height;
             }
@@ -210,32 +218,38 @@ export default class CollisionEngine {
     _checkDynamicPair(object, wall, time) {
         this.stat.pairScan++;
         let allowedX, allowedY;
+
         const interval = (time - object.updateTime);
+        const wallX = wall.x + wall.xSpeed * interval;
+        const wallY = wall.y + wall.ySpeed * interval;
+        const objectNextX = object.x + object.xSpeed * interval;
+        const objectNextY = object.y + object.ySpeed * interval;
 
         if (
-            (object.x + object.xSpeed * interval + object.width > wall.x) &&
-            (object.x + object.xSpeed * interval < wall.x + wall.width) &&
-            (object.y + object.height > wall.y) &&
-            (object.y < wall.y + wall.height)
+            (objectNextX > wallX) &&
+            (objectNextX < wallX + wall.width) &&
+            (object.y + object.height > wallY) &&
+            (object.y < wallY + wall.height)
         ) {
             if (object.xSpeed > 0) {
-                allowedX = wall.x - object.width;
+                allowedX = wallX - object.real.width;
             } else if (object.xSpeed < 0) {
-                allowedX = wall.x + wall.width;
+                allowedX = wallX + wall.width;
             }
         }
 
         if (
-            (object.y + object.ySpeed * interval + object.height > wall.y) &&
-            (object.y + object.ySpeed * interval < wall.y + wall.height) &&
-            (object.x + object.width > wall.x) &&
-            (object.x < wall.x + wall.width)
+            (objectNextY > wallY) &&
+            (objectNextY < wallY + wall.height) &&
+            (object.x + object.width > wallX) &&
+            (object.x < wallX + wall.width)
         ) {
             if (object.ySpeed > 0) {
-                allowedY = wall.y - object.height;
+                allowedY = wallY - object.real.height;
             } else if (object.ySpeed < 0) {
-                allowedY = wall.y + wall.height;
+                allowedY = wallY + wall.height;
             }
+
         }
 
         if (allowedX !== undefined || allowedY !== undefined) {
@@ -291,5 +305,24 @@ export default class CollisionEngine {
         }
 
         return position2;
+    }
+
+    /**
+     * Replace real object with single line at front of speed vector
+     * @param object
+     * @returns {{x: *, y: *, width: number, height: number, object: *}}
+     * @private
+     */
+    _createVirtualObjectFront(object) {
+        return {
+            x: object.xSpeed > 0 ? object.x + object.width : object.x,
+            y: object.ySpeed > 0 ? object.y + object.height : object.y,
+            width: object.xSpeed !== 0 ? 0 : object.width,
+            height: object.ySpeed !== 0 ? 0 : object.height,
+            updateTime: object.updateTime,
+            xSpeed: object.xSpeed,
+            ySpeed: object.ySpeed,
+            real: object
+        }
     }
 }

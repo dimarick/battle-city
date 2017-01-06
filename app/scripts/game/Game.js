@@ -77,7 +77,7 @@ export default class Game
         if (this.enemyCount >= this.enemyMaxCount) {
             return;
         }
-        const spawnPoint = Math.floor(Math.random() * 13) * 2;
+        const spawnPoint = Math.floor(Math.random() * 13) * 16;
         const tank = new EnemyTank(spawnPoint, 0, TankDirection.down);
         tank.setSpeed(1);
         scene.attach(new TankBirth(tank, spawnPoint, 0));
