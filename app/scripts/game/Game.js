@@ -48,10 +48,10 @@ export default class Game
         this.spawnPlayer1(scene);
         this.spawnPlayer2(scene);
 
-        setInterval(() => {
-            const spawnPoint = Math.floor(Math.random() * 13) * 2;
-            scene.attach(new TankBirth(new EnemyTank(spawnPoint, 0, TankDirection.down), spawnPoint, 0));
-        }, 500);
+        this.enemyCount = 0;
+        this.enemyMaxCount = 20;
+
+        setInterval(() => this.spawnEnemy(scene), 800);
     }
 
     /**
@@ -70,6 +70,13 @@ export default class Game
         this.player2 = new PlayerTank(tiles.tank.green, 16, 24, TankDirection.up);
         this.keyboard2.attach(this.player2);
         scene.attach(new PlayerTankBirth(this.player2, this.player2.x / 8, this.player2.y / 8));
+    }
+
+    spawnEnemy(scene) {
+        const spawnPoint = Math.floor(Math.random() * 13) * 2;
+        const tank = new EnemyTank(spawnPoint, 0, TankDirection.down);
+        tank.setSpeed(1);
+        scene.attach(new TankBirth(tank, spawnPoint, 0));
     }
 
     autoRespawn(scene, object) {

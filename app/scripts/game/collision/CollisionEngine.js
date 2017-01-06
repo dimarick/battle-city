@@ -124,6 +124,14 @@ export default class CollisionEngine {
                 return;
             }
 
+            if (object.supportsDynamicCollision && !object.supportsDynamicCollision(wall)) {
+                return;
+            }
+
+            if (wall.supportsDynamicCollision && !wall.supportsDynamicCollision(object)) {
+                return;
+            }
+
             collisions = collisions.concat(that._checkDynamicPair(object, wall, time));
         });
 

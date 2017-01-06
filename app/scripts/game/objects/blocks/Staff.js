@@ -6,10 +6,14 @@ import Bullet from '../Bullet';
 import Explosion from '../Explosion';
 import {SceneEvents} from "../../Scene";
 
+export class StaffState {}
+StaffState.normal = 'normal';
+StaffState.broken = 'broken';
+
 export default class Staff extends StaticObject {
     constructor(x, y) {
         super(tiles.staff, 0, x, y, 16, 16);
-        this.currentState = 'normal';
+        this.currentState = StaffState.normal;
     }
 
     /**
@@ -32,7 +36,7 @@ export default class Staff extends StaticObject {
             animation.y = this.y;
 
             this.scene.eventManager.subscribe(animation, SceneEvents.detach,
-                () => this.currentState = 'broken'
+                () => this.currentState = StaffState.broken
             );
 
             this.scene.attach(animation);

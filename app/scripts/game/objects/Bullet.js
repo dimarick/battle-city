@@ -57,7 +57,6 @@ export default class Bullet extends DynamicObject {
      * @param {CollisionEvent} event
      */
     handleCollision(event) {
-        const scene = this.scene;
         event.targetObject.forEach((object) => {
             if (object instanceof Bullet && event.sourceObject instanceof Bullet) {
                 this.scene.detach(object);

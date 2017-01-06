@@ -1,6 +1,11 @@
 import Tank, {TankDirection} from './Tank';
 import tiles from '../tiles';
 import Bullet from "./Bullet";
+import Staff, {StaffState} from "./blocks/Staff";
+import Water from "./blocks/Water";
+import Concrete from "./blocks/Concrete";
+import Brick from "./blocks/Brick";
+import PlayerTank from "./PlayerTank";
 
 export default class EnemyTank extends Tank {
 
@@ -31,17 +36,26 @@ export default class EnemyTank extends Tank {
         clearInterval(this.tickInterval);
     }
 
+    supportsDynamicCollision(object) {
+        if (object instanceof PlayerTank) {
+            return true;
+        }
+
+        if (object instanceof Staff && object.currentState !== StaffState.broken) {
+            return true;
+        }
+
+        if (object instanceof Bullet && object.owner instanceof PlayerTank) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * @param {CollisionEvent} event
      */
     handleCollision(event) {
-        if (event.sourceObject instanceof Bullet && event.sourceObject.owner instanceof EnemyTank) {
-            return;
-        }
-        if (event.sourceObject instanceof EnemyTank) {
-            return;
-        }
-
         super.handleCollision(event);
 
         if (this.throwOnCollision === true) {
@@ -49,9 +63,7 @@ export default class EnemyTank extends Tank {
         }
 
         if (event.sourceObject === this) {
-            if (Math.random() < 1 / 4) {
-                this.autoChangeDirection(this.scene);
-            }
+            this.autoChangeDirection(this.scene);
         }
     }
 
@@ -59,7 +71,7 @@ export default class EnemyTank extends Tank {
      * @param {Scene} scene
      */
     tick(scene) {
-        if (Math.random() < 1 / 64) {
+        if (Math.random() < 1 / 64 && this.lastDirectionChange + 1000 < scene.getTime()) {
             this.autoChangeDirection(scene);
         } else if (Math.random() < 1 / 16) {
             this.fire();
@@ -85,18 +97,22 @@ export default class EnemyTank extends Tank {
             if (this.ySpeed !== 0) {
                 suggestDirections = suggestDirections.concat([TankDirection.left, TankDirection.right]);
             }
-            // suggestDirections = suggestDirections.concat([TankDirection.down]);
-            // suggestDirections = suggestDirections.concat(this.direction);
+            suggestDirections = suggestDirections.concat([TankDirection.down]);
         }
 
-        const direction = EnemyTank.randomElement(suggestDirections);
+        const currentDirection = this.direction;
 
-        if (this.direction !== direction) {
+        const direction = EnemyTank.randomElement(suggestDirections.filter((direction) => {
+            return currentDirection !== direction;
+        }));
+
+        if (currentDirection !== direction) {
             this.throwOnCollision = true;
             try {
                 const now = this.scene.getTime();
                 this.setSpeed(1, direction);
                 this.scene.collisionEngine.checkObject(this, now);
+                this.lastDirectionChange = scene.getTime();
             } catch (e) {
                 if (e.message === 'collision_not_allowed') {
                     this.autoChangeDirection(scene, suggestDirections.filter((a) => {return direction !== a}));
