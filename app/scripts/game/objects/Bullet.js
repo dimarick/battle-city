@@ -1,9 +1,13 @@
 import DynamicObject from './DynamicObject';
+import {CollisionEvent} from '../collision/CollisionEngine';
 import tiles from '../tiles';
 
 export default class Bullet extends DynamicObject {
-    constructor(x, y, xSpeed, ySpeed) {
+    constructor(owner, x, y, xSpeed, ySpeed) {
         super();
+
+        this.owner = owner;
+
         if (xSpeed !== 0) {
             this.x = x;
             this.y = y - 2;
@@ -46,6 +50,20 @@ export default class Bullet extends DynamicObject {
 
         this.scene.collisionEngine.attachDynamic(this);
         this.scene.collisionEngine.checkObject(this, this.updateTime);
+        scene.eventManager.subscribe(this, CollisionEvent.contact, (object, event) => this.handleCollision(event));
+    }
+
+    /**
+     * @param {CollisionEvent} event
+     */
+    handleCollision(event) {
+        const scene = this.scene;
+        event.targetObject.forEach((object) => {
+            if (object instanceof Bullet && event.sourceObject instanceof Bullet) {
+                this.scene.detach(object);
+                this.scene.detach(event.sourceObject);
+            }
+        });
     }
 
     /**
@@ -64,7 +82,7 @@ export default class Bullet extends DynamicObject {
     }
 
     /**
-     * @returns {TankStateTileRegistry}
+     * @returns {Tile}
      * @private
      */
     _getDirectionTile() {

@@ -1,7 +1,5 @@
 import Scene from './Scene';
 import DebugInfo from './objects/DebugInfo';
-import StaticObject from './objects/StaticObject';
-import TankBirth from './objects/TankBirth';
 import {TankDirection} from './objects/Tank';
 import PlayerTank from './objects/PlayerTank';
 import Keyboard from './input/Keyboard';
@@ -10,6 +8,8 @@ import PlayerTankBirth from './objects/PlayerTankBirth';
 import StageMap, {mapStage1} from './objects/StageMap';
 import tiles from './tiles';
 import Staff from "./objects/blocks/Staff";
+import EnemyTank from "./objects/EnemyTank";
+import TankBirth from "./objects/TankBirth";
 
 export default class Game
 {
@@ -47,6 +47,11 @@ export default class Game
 
         this.spawnPlayer1(scene);
         this.spawnPlayer2(scene);
+
+        setInterval(() => {
+            const spawnPoint = Math.floor(Math.random() * 13) * 2;
+            scene.attach(new TankBirth(new EnemyTank(spawnPoint, 0, TankDirection.down), spawnPoint, 0));
+        }, 500);
     }
 
     /**
@@ -67,7 +72,7 @@ export default class Game
         scene.attach(new PlayerTankBirth(this.player2, this.player2.x / 8, this.player2.y / 8));
     }
 
-    autoRespown(scene, object) {
+    autoRespawn(scene, object) {
         if (scene.game.player1 === object) {
             scene.game.spawnPlayer1(scene);
         } else if (scene.game.player2 === object) {
