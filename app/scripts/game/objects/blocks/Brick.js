@@ -1,14 +1,27 @@
 import tiles from '../../tiles';
-import StaticObject from '../StaticObject';
 import {CollisionEvent} from '../../collision/CollisionEngine';
 import Explosion from '../Explosion';
 import Tank from '../Tank';
 import Bullet from '../Bullet';
-import {SceneEvents} from '../../Scene';
 
-export default class Brick extends StaticObject {
+export default class Brick {
     constructor(x, y) {
-        super([tiles.block.brick], 0, x, y, 8, 8);
+        this.x = x;
+        this.y = y;
+        this.width = 8;
+        this.height = 8;
+        this.tile = {
+            x: 0,
+            y: 0,
+            width: 8,
+            height: 8,
+        };
+    }
+
+    render(context) {
+        tiles.block.brick
+            .getTile(this.tile.x, this.tile.y, this.tile.width, this.tile.height)
+            .renderFragment(context, this.x + this.tile.x, this.y + this.tile.y);
     }
 
     /**
@@ -25,17 +38,68 @@ export default class Brick extends StaticObject {
      */
     handleCollision(event) {
         if (event.sourceObject instanceof Bullet) {
-            if (event.sourceObject.associatedAnimation === undefined) {
-                event.sourceObject.associatedAnimation = Explosion.explodeAnimationSmall();
-            }
-
-            this.scene.eventManager.subscribe(event.sourceObject.associatedAnimation, SceneEvents.detach,
-                () => this.scene.detach(this)
-            );
-            this.scene.collisionEngine.detach(this);
-            this.scene.utils.handleDestroy(event.sourceObject, event.sourceObject.associatedAnimation);
+            this.damage(event.sourceObject);
+            this.scene.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
         } else if (event.sourceObject instanceof Tank) {
             this.scene.utils.handleBarrier(event);
+        }
+    }
+
+    /**
+     * @param {Bullet} bullet
+     */
+    damage(bullet) {
+        if (bullet.ySpeed > 0) {
+            this.damageUp();
+        } else if (bullet.ySpeed < 0) {
+            this.damageDown();
+        } else if (bullet.xSpeed > 0) {
+            this.damageLeft();
+        } else if (bullet.xSpeed < 0) {
+            this.damageRight();
+        }
+    }
+
+    damageUp() {
+        this.y += 3;
+        this.height -= 3;
+
+        this.tile.y +=1;
+        this.tile.height -=4;
+
+        this.autoDestroy();
+    }
+
+    damageDown() {
+        this.height -= 3;
+
+        this.tile.height -= 4;
+
+        this.autoDestroy();
+    }
+
+    damageLeft() {
+        this.x += 3;
+        this.width -= 3;
+
+        this.tile.x +=1;
+        this.tile.width -=4;
+
+        this.autoDestroy();
+    }
+
+    damageRight() {
+        this.width -= 3;
+
+        this.tile.width -=4;
+
+        this.autoDestroy();
+    }
+
+    autoDestroy() {
+        if (this.height <= 3 || this.width <= 3) {
+            this.scene.detach(this);
+            this.scene.collisionEngine.detach(this);
         }
     }
 }

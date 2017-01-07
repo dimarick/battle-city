@@ -41,6 +41,13 @@ class Tile {
         return this.height;
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @returns {Tile}
+     */
     getTile(x, y, width, height) {
         return new Tile(this, x, y, width, height)
     }
@@ -55,7 +62,17 @@ class Tile {
         context.webkitImageSmoothingEnabled = false;
         context.msImageSmoothingEnabled = false;
         context.imageSmoothingEnabled = false;
-        context.drawImage(this.getImage(), this.getX(), this.getY(), this.getWidth(), this.getHeight(), (x - this.baseX) * this.scale, (y - this.baseY) * this.scale, this.getWidth() * this.scale, this.getHeight() * this.scale)
+        context.drawImage(
+            this.getImage(),
+            this.getX(),
+            this.getY(),
+            this.getWidth(),
+            this.getHeight(),
+            (x - this.baseX) * this.scale,
+            (y - this.baseY) * this.scale,
+            this.getWidth() * this.scale,
+            this.getHeight() * this.scale
+        );
     }
 }
 
@@ -181,12 +198,6 @@ class BrickStateRegistry extends SmallTile {
         super(parent, x, y, 1, 1);
         this.right = new CombinedTile([[new NullTile(this, 0, 0, 4, 8), this.getTile(4, 0, 4, 8)]]);
         this.left = new CombinedTile([[this.getTile(0, 0, 4, 8), new NullTile(this, 0, 0, 4, 8)]]);
-        this.top = new CombinedTile([[this.getTile(0, 0, 8, 4)], [new NullTile(this, 0, 0, 8, 4)]]);
-        this.bottom = new CombinedTile([[new NullTile(this, 0, 0, 8, 4)], [this.getTile(0, 4, 8, 4)]]);
-        this.topRight = new CombinedTile([[new NullTile(this, 0, 0, 4, 4), this.getTile(4, 0, 4, 4)], [new NullTile(this, 0, 0, 8, 4)]]);
-        this.topLeft = new CombinedTile([[this.getTile(0, 0, 4, 4), new NullTile(this, 0, 0, 4, 4)], [new NullTile(this, 0, 0, 8, 4)]]);
-        this.bottomRight = new CombinedTile([[new NullTile(this, 0, 0, 8, 4)], [new NullTile(this, 0, 0, 4, 4), this.getTile(4, 4, 4, 4)]]);
-        this.bottomLeft = new CombinedTile([[new NullTile(this, 0, 0, 8, 4)], [this.getTile(0, 4, 4, 4), new NullTile(this, 0, 0, 4, 4)]]);
     }
 }
 
@@ -205,7 +216,7 @@ class BlockTileRegistry extends SmallTile {
     constructor(parent) {
         super(parent, 32, 8, 5, 3);
 
-        this.brick = new BrickStateRegistry(this, 0, 0);
+        this.brick = new SmallTile(this, 0, 0, 1, 1);
         this.water = new WaterStateRegistry(this, 0, 2);
         this.concrete = new SmallTile(this, 0, 1, 1, 1);
         this.forest = new SmallTile(this, 1, 1, 1, 1);

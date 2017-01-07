@@ -136,16 +136,16 @@ export default class Tank extends DynamicObject {
     _getBullet() {
         switch (this.direction) {
             case TankDirection.up:
-                return new Bullet(this, this.x + this.width / 2, this.y - 4, 0, -1);
+                return new Bullet(this, this.x + this.width / 2, this.y, 0, -1);
                 break;
             case TankDirection.down:
-                return new Bullet(this, this.x + this.width / 2, this.y + this.height, 0, 1);
+                return new Bullet(this, this.x + this.width / 2, this.y + this.height - 4, 0, 1);
                 break;
             case TankDirection.left:
-                return new Bullet(this, this.x - 4, this.y + this.height / 2, -1, 0);
+                return new Bullet(this, this.x, this.y + this.height / 2, -1, 0);
                 break;
             case TankDirection.right:
-                return new Bullet(this, this.x + this.width, this.y + this.height / 2, 1, 0);
+                return new Bullet(this, this.x + this.width - 4, this.y + this.height / 2, 1, 0);
                 break;
         }
     }

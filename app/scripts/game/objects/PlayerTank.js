@@ -1,6 +1,8 @@
 import Tank, {TankDirection} from './Tank';
 import Commands from '../input/Commands';
 import CommandGroup from '../input/CommandGroup';
+import Bullet from "./Bullet";
+import EnemyTank from "./EnemyTank";
 
 export default class PlayerTank extends Tank {
     /**
@@ -37,6 +39,22 @@ export default class PlayerTank extends Tank {
 
         scene.eventManager.subscribe(this, Commands.fire.start, () => this.commandFireStart());
         scene.eventManager.subscribe(this, Commands.fire.stop, () => this.commandFireStop());
+    }
+
+    supportsDynamicCollision(object) {
+        if (object instanceof PlayerTank) {
+            return true;
+        }
+
+        if (object instanceof EnemyTank) {
+            return true;
+        }
+
+        if (object instanceof Bullet && object.owner !== this) {
+            return true;
+        }
+
+        return false;
     }
 
     commandUp() {
