@@ -10,6 +10,7 @@ export default class Keyboard
         this.bindings = bindings;
         this.eventManager = eventManager;
         this.activeCommands = new Set;
+        this.disabled = false;
     }
 
     attach(object) {
@@ -51,6 +52,10 @@ export default class Keyboard
      * @param {KeyboardEvent} event
      */
     keydown(event) {
+        if (this.disabled) {
+            return false;
+        }
+
         if (this.target === undefined) {
             return false;
         }
@@ -95,6 +100,11 @@ export default class Keyboard
             this.eventManager.dispatch(this.target, command.stop);
         }
         this.activeCommands.delete(command);
+    }
+
+    disable() {
+        this.activeCommands.forEach((command) => this.popCommand(command));
+        this.disabled = true;
     }
 
     //noinspection JSUnusedLocalSymbols
