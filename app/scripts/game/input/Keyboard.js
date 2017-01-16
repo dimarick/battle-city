@@ -9,6 +9,7 @@ export default class Keyboard
     constructor(bindings, eventManager) {
         this.bindings = bindings;
         this.eventManager = eventManager;
+        this.activeCommands = new Set;
     }
 
     attach(object) {
@@ -28,6 +29,7 @@ export default class Keyboard
 
         document.addEventListener('keydown', this.keydownHandler, true);
         document.addEventListener('keyup', this.keyupHandler, true);
+        this.detachTargetSubscription = this.eventManager.subscribe(this.target, SceneEvents.attach, this.attachObject.bind(this));
         this.detachTargetSubscription = this.eventManager.subscribe(this.target, SceneEvents.detach, this.detachObject.bind(this));
     }
 
@@ -35,6 +37,9 @@ export default class Keyboard
         if (this.target !== undefined) {
             document.removeEventListener('keydown', this.keydownHandler);
             document.removeEventListener('keyup', this.keyupHandler);
+
+            this.activeCommands.forEach((command) => this.popCommand(command));
+
             this.eventManager.unsubscribe(this.target, SceneEvents.detach, this.detachTargetSubscription);
 
             delete this.target;
@@ -58,7 +63,7 @@ export default class Keyboard
             return false;
         }
 
-        this.eventManager.dispatch(this.target, command.start);
+        this.pushCommand(command);
 
         return false;
     }
@@ -67,19 +72,40 @@ export default class Keyboard
      * @param {KeyboardEvent} event
      */
     keyup(event) {
-        if (this.target === undefined) {
-            return false;
-        }
-
         const command = this.bindings[event.keyCode];
         if (command === undefined) {
             return false;
         }
         this._resetRepeated();
 
-        this.eventManager.dispatch(this.target, command.stop);
+        this.popCommand(command);
 
         return false;
+    }
+
+    pushCommand(command) {
+        if (this.target !== undefined) {
+            this.eventManager.dispatch(this.target, command.start);
+        }
+        this.activeCommands.add(command);
+    }
+
+    popCommand(command) {
+        if (this.target !== undefined) {
+            this.eventManager.dispatch(this.target, command.stop);
+        }
+        this.activeCommands.delete(command);
+    }
+
+    //noinspection JSUnusedLocalSymbols
+    /**
+     * @param object
+     * @param data
+     * @param eventName
+     * @param {EventManager} eventManager
+     */
+    attachObject(object, data, eventName, eventManager) {
+        this.activeCommands.forEach((command) => this.pushCommand(command));
     }
 
     //noinspection JSUnusedLocalSymbols
