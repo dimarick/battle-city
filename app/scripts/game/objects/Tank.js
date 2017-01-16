@@ -44,21 +44,29 @@ export default class Tank extends DynamicObject {
      * @param {CollisionEvent} event
      */
     handleCollision(event) {
-        if (event.sourceObject instanceof Bullet && event.sourceObject.owner !== this) {
-            const animation = Explosion.explodeAnimationLarge();
-
-            animation.x = this.x;
-            animation.y = this.y;
-
-            this.scene.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
-
-            this.scene.collisionEngine.detach(this);
-            this.scene.detach(this);
-            this.scene.attach(animation);
-            this.scene.eventManager.subscribe(animation, SceneEvents.detach, () => this.scene.game.autoRespawn(this.scene, this));
-        } else if (event.sourceObject instanceof Tank) {
-            this.scene.utils.handleBarrier(event);
+        for (let target of event.targetObject) {
+            if (event.sourceObject instanceof Bullet && event.sourceObject.owner !== this) {
+                this.handleBullet(event.sourceObject);
+            } else if (target instanceof Bullet && target.owner !== this) {
+                this.handleBullet(target);
+            } else if (event.sourceObject instanceof Tank) {
+                this.scene.utils.handleBarrier(event);
+            }
         }
+    }
+
+    handleBullet(bullet) {
+        const animation = Explosion.explodeAnimationLarge();
+
+        animation.x = this.x;
+        animation.y = this.y;
+
+        this.scene.utils.handleDestroy(bullet, Explosion.explodeAnimationSmall());
+
+        this.scene.collisionEngine.detach(this);
+        this.scene.detach(this);
+        this.scene.attach(animation);
+        this.scene.eventManager.subscribe(animation, SceneEvents.detach, () => this.scene.game.autoRespawn(this.scene, this));
     }
 
     onDetach(scene) {
