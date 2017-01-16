@@ -12,7 +12,8 @@ export default class PlayerTank extends Tank {
      * @param direction
      */
     constructor(tankColorTiles, x, y, direction) {
-        super(tankColorTiles.player, x, y, direction);
+        super(x, y, direction);
+        this.tankTile = tankColorTiles.player;
     }
 
     /**

@@ -10,6 +10,7 @@ import tiles from './tiles';
 import Staff from "./objects/blocks/Staff";
 import EnemyTank from "./objects/EnemyTank";
 import TankBirth from "./objects/TankBirth";
+import EnemySpawner from "./EnemySpawner";
 
 export default class Game
 {
@@ -48,10 +49,14 @@ export default class Game
         this.spawnPlayer1(scene);
         this.spawnPlayer2(scene);
 
-        this.enemyCount = 0;
-        this.enemyMaxCount = 20;
+        this.enemySpawner = new EnemySpawner(this._scene, 20, 4, {
+            NormalTank: 1,
+            FastTank: 1,
+            PowerTank: 1,
+            ArmoredTank: 1,
+        });
 
-        setInterval(() => this.spawnEnemy(scene), 1000);
+        this.enemySpawner.spawn();
     }
 
     /**

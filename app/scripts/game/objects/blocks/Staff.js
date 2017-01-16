@@ -43,6 +43,8 @@ export default class Staff extends StaticObject {
 
             this.scene.collisionEngine.detach(this);
             this.scene.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
+            this.scene.game.keyboard1.detach();
+            this.scene.game.keyboard2.detach();
         } else if (event.sourceObject instanceof Tank) {
             this.scene.utils.handleBarrier(event);
         }

@@ -1,4 +1,3 @@
-import tiles from '../tiles'
 import Brick from './blocks/Brick';
 import Concrete from './blocks/Concrete';
 import Forest from './blocks/Forest';
@@ -15,14 +14,14 @@ export const mapStage1 =
     '    bkbk    bkbk    bkbkctctbkbk    bkbk    bkbk    ' +
     '    bkbk    bkbk    bkbkctctbkbk    bkbk    bkbk    ' +
     '    bkbk    bkbk    bkbk    bkbk    bkbk    bkbk    ' +
-    '    bkbk    bkbkicicicicicicicicicicbkbk    bkbk    ' +
-    '    bkbk    bkbkicicicicicicicicicicbkbk    bkbk    ' +
+    '    bkbk    bkbk                    bkbk    bkbk    ' +
+    '    bkbk    bkbk                    bkbk    bkbk    ' +
     '                    bkbk    bkbk                    ' +
     '                    bkbk    bkbk                    ' +
     'bkbk    bkbkbkbk                    bkbkbkbk    bkbk' +
     'ctct    bkbkbkbk                    bkbkbkbk    ctct' +
-    '    wtwtwtwtwtwtwtwtbkbk    bkbkfrfrfrfrfrfrfrfr    ' +
-    '    wtwtwtwtwtwtwtwtbkbkbkbkbkbkfrfrfrfrfrfrfrfr    ' +
+    '                    bkbk    bkbk                    ' +
+    '                    bkbkbkbkbkbk                    ' +
     '    bkbk    bkbk    bkbkbkbkbkbk    bkbk    bkbk    ' +
     '    bkbk    bkbk    bkbk    bkbk    bkbk    bkbk    ' +
     '    bkbk    bkbk    bkbk    bkbk    bkbk    bkbk    ' +

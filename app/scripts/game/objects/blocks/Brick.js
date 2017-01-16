@@ -3,6 +3,7 @@ import {CollisionEvent} from '../../collision/CollisionEngine';
 import Explosion from '../Explosion';
 import Tank from '../Tank';
 import Bullet from '../Bullet';
+import PowerBullet from "../PowerBullet";
 
 export default class Brick {
     constructor(x, y) {
@@ -49,6 +50,9 @@ export default class Brick {
      * @param {Bullet} bullet
      */
     damage(bullet) {
+        if (bullet instanceof PowerBullet) {
+            this.destroy();
+        }
         if (bullet.ySpeed > 0) {
             this.damageUp();
         } else if (bullet.ySpeed < 0) {
@@ -98,8 +102,12 @@ export default class Brick {
 
     autoDestroy() {
         if (this.height <= 3 || this.width <= 3) {
-            this.scene.detach(this);
-            this.scene.collisionEngine.detach(this);
+            this.destroy();
         }
+    }
+
+    destroy() {
+        this.scene.detach(this);
+        this.scene.collisionEngine.detach(this);
     }
 }

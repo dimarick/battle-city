@@ -1,19 +1,16 @@
 import Tank, {TankDirection} from './Tank';
-import tiles from '../tiles';
 import Bullet from "./Bullet";
 import PlayerTank from "./PlayerTank";
+import Random from "../Random";
 
 export default class EnemyTank extends Tank {
 
     constructor(x, y, direction) {
-        super(EnemyTank.randomElement([
-            tiles.tank.white.normal,
-            tiles.tank.white.armored,
-            tiles.tank.white.fast,
-            tiles.tank.white.power
-        ]), x, y, direction);
+        super(x, y, direction);
 
         this.directionSuggestions = {};
+        this.baseSpeed = 0.03;
+        this.bulletSpeed = 0.03 * 3;
         this.resetSuggestions();
     }
 
@@ -66,9 +63,9 @@ export default class EnemyTank extends Tank {
      */
     tick(scene) {
         const time = scene.getTime();
-        if (Math.random() < 1 / 64 && this.lastDirectionChange + 300 < time) {
+        if (Random.boolean(1 / 64) && this.lastDirectionChange + 300 < time) {
             this.autoChangeDirection(scene, time);
-        } else if (Math.random() < 1 / 16) {
+        } else if (Random.boolean(1 / 16)) {
             this.fire();
         }
     }
@@ -99,7 +96,7 @@ export default class EnemyTank extends Tank {
 
         this.directionSuggestions[this.direction] *= 2;
 
-        const direction = EnemyTank.randomElementbyProbabilities(this.directionSuggestions);
+        const direction = Random.getByProbabilities(this.directionSuggestions);
 
         if (this.direction !== direction) {
             this.setSpeed(1, direction);
@@ -108,50 +105,6 @@ export default class EnemyTank extends Tank {
         }
 
         this.resetSuggestions();
-    }
-
-    /**
-     * @param {Object} arr
-     * @returns {String}
-     */
-    static randomElement(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    /**
-     * @param {Object} arr
-     * @returns {String}
-     */
-    static randomElementbyProbabilities(arr) {
-
-        let keys = [];
-        for(let key in arr) {
-            keys.push(key);
-        }
-
-        const probabilitySum = keys.reduce((sum, key) => {
-            return sum + arr[key];
-        }, 0);
-
-        if (probabilitySum === 0) {
-            return EnemyTank.randomElement(keys);
-        }
-
-        const randomValue = Math.random() * probabilitySum;
-
-        let selected = keys[keys.length - 1];
-
-        keys.reduce((sum, key) => {
-            const valueSum = sum + arr[key];
-
-            if (randomValue <= valueSum && randomValue >= sum) {
-                selected = key;
-            }
-
-            return valueSum;
-        }, 0);
-
-        return selected;
     }
 
     resetSuggestions() {

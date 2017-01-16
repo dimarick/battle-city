@@ -4,6 +4,7 @@ import Tank from '../Tank';
 import Bullet from '../Bullet';
 import {CollisionEvent} from '../../collision/CollisionEngine';
 import Explosion from '../Explosion';
+import PowerBullet from "../PowerBullet";
 
 export default class Concrete extends StaticObject {
     constructor(x, y) {
@@ -24,9 +25,17 @@ export default class Concrete extends StaticObject {
      */
     handleCollision(event) {
         if (event.sourceObject instanceof Bullet) {
+            if (event.sourceObject instanceof PowerBullet) {
+                this.destroy();
+            }
             this.scene.utils.handleDestroy(event.sourceObject, Explosion.explodeAnimationSmall());
         } else if (event.sourceObject instanceof Tank) {
             this.scene.utils.handleBarrier(event);
         }
+    }
+
+    destroy() {
+        this.scene.detach(this);
+        this.scene.collisionEngine.detach(this);
     }
 }

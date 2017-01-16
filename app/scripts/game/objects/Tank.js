@@ -12,21 +12,22 @@ TankDirection.right = 'right';
 
 export default class Tank extends DynamicObject {
     /**
-     * @param {TankDirectionTileRegistry} tankTile
      * @param x
      * @param y
      * @param {string} direction
      */
-    constructor(tankTile, x, y, direction) {
+    constructor(x, y, direction) {
         super();
-        this.tankTile = tankTile;
-        this.setPosition(x, y);
-        this.setSpeed(0, direction);
         this.width = 16;
         this.height = 16;
         this.maxBullets = 1;
         this.bullets = new Set;
         this.detached = true;
+        this.baseSpeed = 0.04;
+        this.bulletSpeed = 0.04 * 3;
+        this.bulletClass = Bullet;
+        this.setPosition(x, y);
+        this.setSpeed(0, direction);
     }
 
     /**
@@ -89,16 +90,16 @@ export default class Tank extends DynamicObject {
 
         switch (this.direction) {
             case TankDirection.up:
-                this.setVector(0, -0.04 * speed);
+                this.setVector(0, -this.baseSpeed * speed);
                 break;
             case TankDirection.down:
-                this.setVector(0, 0.04 * speed);
+                this.setVector(0, this.baseSpeed * speed);
                 break;
             case TankDirection.left:
-                this.setVector(-0.04 * speed, 0);
+                this.setVector(-this.baseSpeed * speed, 0);
                 break;
             case TankDirection.right:
-                this.setVector(0.04 * speed, 0);
+                this.setVector(this.baseSpeed * speed, 0);
                 break;
         }
     }
@@ -136,16 +137,16 @@ export default class Tank extends DynamicObject {
     _getBullet() {
         switch (this.direction) {
             case TankDirection.up:
-                return new Bullet(this, this.x + this.width / 2, this.y, 0, -1);
+                return new this.bulletClass(this, this.x + this.width / 2, this.y, 0, -1, this.bulletSpeed);
                 break;
             case TankDirection.down:
-                return new Bullet(this, this.x + this.width / 2, this.y + this.height - 4, 0, 1);
+                return new this.bulletClass(this, this.x + this.width / 2, this.y + this.height - 4, 0, 1, this.bulletSpeed);
                 break;
             case TankDirection.left:
-                return new Bullet(this, this.x, this.y + this.height / 2, -1, 0);
+                return new this.bulletClass(this, this.x, this.y + this.height / 2, -1, 0, this.bulletSpeed);
                 break;
             case TankDirection.right:
-                return new Bullet(this, this.x + this.width - 4, this.y + this.height / 2, 1, 0);
+                return new this.bulletClass(this, this.x + this.width - 4, this.y + this.height / 2, 1, 0, this.bulletSpeed);
                 break;
         }
     }

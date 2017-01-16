@@ -3,7 +3,7 @@ import {CollisionEvent} from '../collision/CollisionEngine';
 import tiles from '../tiles';
 
 export default class Bullet extends DynamicObject {
-    constructor(owner, x, y, xSpeed, ySpeed) {
+    constructor(owner, x, y, xSpeed, ySpeed, baseSpeed) {
         super();
 
         this.owner = owner;
@@ -17,8 +17,9 @@ export default class Bullet extends DynamicObject {
         }
 
         this.width = this.height = 4;
+        this.baseSpeed = baseSpeed;
 
-        this.setVector(0.04 * 3 * xSpeed, 0.04 * 3 * ySpeed)
+        this.setVector(this.baseSpeed * xSpeed, this.baseSpeed * ySpeed)
     }
 
     getBaseX() {
