@@ -30,8 +30,8 @@ export default class EnemySpawner {
 
         this.spawnPoints = [
             {x: 0, y: 0},
-            {x: 12 * 16, y: 0},
-            {x: 25 * 16, y: 0},
+            {x: 12 * 8, y: 0},
+            {x: 24 * 8, y: 0},
         ];
 
         this.spawnDelay = 1000;
@@ -61,7 +61,7 @@ export default class EnemySpawner {
         const tankClass = this.classes[Random.getByProbabilities(this.probabilities)];
         const tank = new tankClass(spawnPoint.x, spawnPoint.y, TankDirection.down);
         tank.setSpeed(1);
-        this.scene.attach(new TankBirth(tank, spawnPoint, 0));
+        this.scene.attach(new TankBirth(tank, spawnPoint.x, spawnPoint.y));
         this.scene.eventManager.subscribe(tank, SceneEvents.detach, () => this.detachTank());
     }
 
