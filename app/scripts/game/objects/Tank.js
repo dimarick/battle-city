@@ -28,6 +28,7 @@ export default class Tank extends DynamicObject {
         this.bulletClass = Bullet;
         this.setPosition(x, y);
         this.setSpeed(0, direction);
+        this.score = 0;
     }
 
     /**
@@ -49,7 +50,7 @@ export default class Tank extends DynamicObject {
                 this.handleBullet(event.sourceObject);
             } else if (target instanceof Bullet && target.owner !== this) {
                 this.handleBullet(target);
-            } else if (event.sourceObject instanceof Tank) {
+            } else if (event.sourceObject === this) {
                 this.scene.utils.handleBarrier(event);
             }
         }
@@ -67,6 +68,7 @@ export default class Tank extends DynamicObject {
         this.scene.detach(this);
         this.scene.attach(animation);
         this.scene.eventManager.subscribe(animation, SceneEvents.detach, () => this.scene.game.autoRespawn(this.scene, this));
+        bullet.owner.score += this.cost;
     }
 
     onDetach(scene) {
@@ -76,7 +78,7 @@ export default class Tank extends DynamicObject {
 
     changeDirection(speed, direction) {
         const now = this.scene.getTime();
-        this.updatePosition(this.scene.getTime());
+        this.updatePosition(now);
         this.scene.collisionEngine.checkObject(this, now);
         this.setSpeed(speed, direction);
     }
@@ -115,7 +117,7 @@ export default class Tank extends DynamicObject {
     fire() {
         if (this._canFire()) {
             // Run collision detection for case when tank must be already destroyed
-            this.scene.collisionEngine.check(this.scene.getTime());
+            this.scene.collisionEngine.check(this.scene.getTime(), [Tank, Bullet]);
 
             if (this.detached) {
                 return;

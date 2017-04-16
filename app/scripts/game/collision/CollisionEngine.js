@@ -60,33 +60,47 @@ export default class CollisionEngine {
     }
 
     /**
-     * @param time
+     * @param {int} time
+     * @param {Array|undefined} classes
      */
-    check(time) {
+    check(time, classes) {
         this.stat.fullScan++;
         const that = this;
         this.dynamicObjects.forEach((object) => {
-            that.checkObject(object, time);
+            that.checkObject(object, time, classes);
         });
     }
 
     /**
      * @param object
-     * @param time
+     * @param {int} time
+     * @param {Array} classes
      */
-    checkObject(object, time) {
+    checkObject(object, time, classes) {
         // Неподвиждые объекты не могут создать коллизию
         if (object.xSpeed === 0 && object.ySpeed === 0) {
             return;
         }
 
         this.stat.objectScan++;
+        let collisions = this.getObjectCollisions(object, time, classes);
+        this._dispatchCollisions(object, collisions);
+    }
+
+    /**
+     * @param object
+     * @param time
+     * @param {Array} classes
+     * @returns {Array}
+     */
+    getObjectCollisions(object, time, classes) {
         let collisions = [];
         const virtualObjectFront = this._createVirtualObjectFront(object);
-        collisions = collisions.concat(this._checkScene(virtualObjectFront, time));
-        collisions = collisions.concat(this._checkStatic(virtualObjectFront, time));
-        collisions = collisions.concat(this._checkDynamic(virtualObjectFront, time));
-        this._dispatchCollisions(object, collisions);
+        collisions = collisions.concat(this._checkScene(virtualObjectFront, time, classes));
+        collisions = collisions.concat(this._checkStatic(virtualObjectFront, time, classes));
+        collisions = collisions.concat(this._checkDynamic(virtualObjectFront, time, classes));
+
+        return collisions;
     }
 
     /**
@@ -124,13 +138,18 @@ export default class CollisionEngine {
     /**
      * @param object
      * @param time
+     * @param {Array} classes
      * @private
      */
-    _checkStatic(object, time) {
+    _checkStatic(object, time, classes) {
         let collisions = [];
         const centerX = object.x + object.width / 2;
         const centerY = object.y + object.height / 2;
         this.staticObjects.forEach((wall) => {
+            if (!this._instanceOf(wall, classes)) {
+                return
+            }
+
             if (Math.abs(wall.x - centerX) > 64 || Math.abs(wall.y - centerY) > 64) {
                 return;
             }
@@ -143,9 +162,10 @@ export default class CollisionEngine {
     /**
      * @param object
      * @param time
+     * @param {Array} classes
      * @private
      */
-    _checkDynamic(object, time) {
+    _checkDynamic(object, time, classes) {
         const that = this;
         let collisions = [];
 
@@ -153,6 +173,10 @@ export default class CollisionEngine {
         const centerY = object.y + object.height / 2;
 
         this.dynamicObjects.forEach((wall) => {
+            if (!this._instanceOf(wall, classes)) {
+                return
+            }
+
             if (wall === object.real) {
                 return;
             }
@@ -179,32 +203,34 @@ export default class CollisionEngine {
         this.stat.pairScan++;
         let allowedX, allowedY;
         const interval = (time - object.updateTime);
+        const wallX = wall.x;
+        const wallY = wall.y;
         const objectNextX = object.x + object.xSpeed * interval;
         const objectNextY = object.y + object.ySpeed * interval;
 
         if (
-            (objectNextX > wall.x) &&
-            (objectNextX < wall.x + wall.width) &&
+            (objectNextX > wallX) &&
+            (objectNextX < wallX + wall.width) &&
             (object.y + object.height > wall.y) &&
-            (object.y < wall.y + wall.height)
+            (object.y < wallY + wall.height)
         ) {
             if (object.xSpeed > 0) {
-                allowedX = wall.x - object.real.width;
+                allowedX = wallX - object.real.width;
             } else if (object.xSpeed < 0) {
-                allowedX = wall.x + wall.width;
+                allowedX = wallX + wall.width;
             }
         }
 
         if (
-            (objectNextY > wall.y) &&
-            (objectNextY < wall.y + wall.height) &&
-            (object.x + object.width > wall.x) &&
-            (object.x < wall.x + wall.width)
+            (objectNextY > wallY) &&
+            (objectNextY < wallY + wall.height) &&
+            (object.x + object.width > wallX) &&
+            (object.x < wallX + wall.width)
         ) {
             if (object.ySpeed > 0) {
-                allowedY = wall.y - object.real.height;
+                allowedY = wallY - object.real.height;
             } else if (object.ySpeed < 0) {
-                allowedY = wall.y + wall.height;
+                allowedY = wallY + wall.height;
             }
         }
 
@@ -249,7 +275,6 @@ export default class CollisionEngine {
             } else if (object.ySpeed < 0) {
                 allowedY = wallY + wall.height;
             }
-
         }
 
         if (allowedX !== undefined || allowedY !== undefined) {
@@ -314,7 +339,7 @@ export default class CollisionEngine {
      * @private
      */
     _createVirtualObjectFront(object) {
-        return {
+        const front = {
             x: object.xSpeed > 0 ? object.x + object.width : object.x,
             y: object.ySpeed > 0 ? object.y + object.height : object.y,
             width: object.xSpeed !== 0 ? 0 : object.width,
@@ -323,6 +348,40 @@ export default class CollisionEngine {
             xSpeed: object.xSpeed,
             ySpeed: object.ySpeed,
             real: object
+        };
+
+        //Представляем 32 пиксельные объекты чуть меньшей ширины,
+        //чтобы игнорировать ряд коллизий связанных с поворотом после лобового столкновения
+
+        if (front.width >= 16) {
+            front.width -= 8;
+            front.x += 4;
         }
+
+        if (front.height >= 16) {
+            front.height -= 8;
+            front.y += 4;
+        }
+
+        return front;
+    }
+
+    /**
+     * @param object
+     * @param {Array} classes
+     * @private
+     */
+    _instanceOf(object, classes) {
+        if (classes === undefined) {
+            return true;
+        }
+
+        for (let className of classes) {
+            if (object instanceof className) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

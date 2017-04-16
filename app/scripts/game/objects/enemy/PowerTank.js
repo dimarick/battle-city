@@ -6,5 +6,6 @@ export default class PowerTank extends EnemyTank {
         super(x, y, direction);
         this.tankTile = tiles.tank.white.power;
         this.bulletSpeed = 0.03 * 6;
+        this.cost = 300;
     }
 }

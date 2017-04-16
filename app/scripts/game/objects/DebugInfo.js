@@ -45,6 +45,7 @@ export default class DebugInfo
 
         this.renderText(context,
 "\
+" + "P1 " + this.scene.game.player1.score + ", P2 " + this.scene.game.player2.score + " E " + this.scene.game.enemySpawner.remain + "\n\
 " + (Math.round(this.time * 1000) / 1000) + "\tms\n\
 " + this._getRate(this.fps, interval, 1000) + "\tfps\n\
 " + this.scene.collisionEngine.stat.objects.stat + "\tстат\n\

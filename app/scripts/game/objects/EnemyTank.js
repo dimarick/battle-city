@@ -2,6 +2,8 @@ import Tank, {TankDirection} from './Tank';
 import Bullet from "./Bullet";
 import PlayerTank from "./PlayerTank";
 import Random from "../Random";
+import Brick from "./blocks/Brick";
+import Staff from "./blocks/Staff";
 
 export default class EnemyTank extends Tank {
 
@@ -53,8 +55,13 @@ export default class EnemyTank extends Tank {
         super.handleCollision(event);
 
         if (event.sourceObject === this) {
-            this.directionSuggestions[this.direction] = 0;
-            this.autoChangeDirection(this.scene, event.time);
+            if (Random.boolean(0.8) && this.canDestroy(event.targetObject)) {
+                this.fire();
+                this.lastDirectionChange = event.time;
+            } else {
+                this.directionSuggestions[this.direction] = 0;
+                this.autoChangeDirection(this.scene, event.time);
+            }
         }
     }
 
@@ -65,7 +72,9 @@ export default class EnemyTank extends Tank {
         const time = scene.getTime();
         if (Random.boolean(1 / 64) && this.lastDirectionChange + 300 < time) {
             this.autoChangeDirection(scene, time);
-        } else if (Random.boolean(1 / 16)) {
+        }
+
+        if (Random.boolean(1 / 16)) {
             this.fire();
         }
     }
@@ -92,8 +101,6 @@ export default class EnemyTank extends Tank {
             this.directionSuggestions[TankDirection.right] *= 4;
         }
 
-
-
         this.directionSuggestions[this.direction] *= 2;
 
         const direction = Random.getByProbabilities(this.directionSuggestions);
@@ -112,5 +119,22 @@ export default class EnemyTank extends Tank {
         this.directionSuggestions[TankDirection.down] = 1;
         this.directionSuggestions[TankDirection.left] = 1;
         this.directionSuggestions[TankDirection.right] = 1;
+    }
+
+    /**
+     * @param {Array} objects
+     */
+    canDestroy(objects) {
+        for (let object of objects) {
+            if (
+                object instanceof Brick ||
+                object instanceof Staff ||
+                object instanceof PlayerTank
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

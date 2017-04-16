@@ -34,7 +34,7 @@ export default class EnemySpawner {
             {x: 24 * 8, y: 0},
         ];
 
-        this.spawnDelay = 1000;
+        this.spawnDelay = 2000;
     }
 
     spawn() {
@@ -44,13 +44,13 @@ export default class EnemySpawner {
     }
 
     _autospawn(delay) {
-        if (this.remain <= 0) {
-            return;
-        }
-
         setTimeout(() => {
             this.count++;
             this.remain--;
+
+            if (this.remain <= 0) {
+                return;
+            }
 
             this._spawn();
         }, delay);
@@ -69,6 +69,10 @@ export default class EnemySpawner {
      *
      */
     detachTank() {
-        this._autospawn(this.spawnDelay)
+        this._autospawn(this.spawnDelay);
+        this.spawnDelay *= 0.9;
+        if (Random.boolean(1 / 10)) {
+            this._autospawn(this.spawnDelay);
+        }
     }
 }

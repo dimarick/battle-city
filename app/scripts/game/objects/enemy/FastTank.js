@@ -6,5 +6,6 @@ export default class FastTank extends EnemyTank {
         super(x, y, direction);
         this.tankTile = tiles.tank.white.fast;
         this.baseSpeed = 0.03 * 2;
+        this.cost = 200;
     }
 }

@@ -49,11 +49,11 @@ export default class Game
         this.spawnPlayer1(scene);
         this.spawnPlayer2(scene);
 
-        this.enemySpawner = new EnemySpawner(this._scene, 20, 4, {
-            NormalTank: 1,
-            FastTank: 1,
-            PowerTank: 1,
-            ArmoredTank: 1,
+        this.enemySpawner = new EnemySpawner(this._scene, 20, 6, {
+            NormalTank: 3,
+            FastTank: 2,
+            PowerTank: 2,
+            ArmoredTank: 1.5,
         });
 
         this.enemySpawner.spawn();
@@ -63,7 +63,9 @@ export default class Game
      * @param {Scene} scene
      */
     spawnPlayer1(scene) {
+        const score = this.player1 !== undefined ? this.player1.score : 0;
         this.player1 = new PlayerTank(tiles.tank.yellow, 8 * 8, 24 * 8, TankDirection.up);
+        this.player1.score = score;
         this.keyboard1.attach(this.player1);
         scene.attach(new PlayerTankBirth(this.player1, this.player1.x, this.player1.y));
     }
@@ -72,7 +74,9 @@ export default class Game
      * @param {Scene} scene
      */
     spawnPlayer2(scene) {
+        const score = this.player2 !== undefined ? this.player2.score : 0;
         this.player2 = new PlayerTank(tiles.tank.green, 16 * 8, 24 * 8, TankDirection.up);
+        this.player2.score = score;
         this.keyboard2.attach(this.player2);
         scene.attach(new PlayerTankBirth(this.player2, this.player2.x, this.player2.y));
     }

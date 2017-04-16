@@ -59,7 +59,7 @@ export default class Bullet extends DynamicObject {
      */
     handleCollision(event) {
         event.targetObject.forEach((object) => {
-            if (object instanceof Bullet && event.sourceObject instanceof Bullet) {
+            if (object instanceof Bullet && event.sourceObject instanceof Bullet && object.owner !== event.sourceObject.owner) {
                 this.scene.detach(object);
                 this.scene.detach(event.sourceObject);
             }
