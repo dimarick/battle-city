@@ -68,7 +68,7 @@ export default class Brick {
         this.y += 3;
         this.height -= 3;
 
-        this.tile.y +=1;
+        this.tile.y += 4;
         this.tile.height -=4;
 
         this.autoDestroy();
@@ -86,7 +86,7 @@ export default class Brick {
         this.x += 3;
         this.width -= 3;
 
-        this.tile.x +=1;
+        this.tile.x += 4;
         this.tile.width -=4;
 
         this.autoDestroy();
