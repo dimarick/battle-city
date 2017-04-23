@@ -83,7 +83,7 @@ export default class CollisionEngine {
         }
 
         this.stat.objectScan++;
-        let collisions = this.getObjectCollisions(object, time, classes);
+        const collisions = this.getObjectCollisions(object, time, classes);
         this._dispatchCollisions(object, collisions);
     }
 

@@ -4,6 +4,7 @@ import PlayerTank from "./PlayerTank";
 import Random from "../Random";
 import Brick from "./blocks/Brick";
 import Staff from "./blocks/Staff";
+import EventManager from "../event/EventManager";
 
 export default class EnemyTank extends Tank {
 
@@ -55,12 +56,14 @@ export default class EnemyTank extends Tank {
         super.handleCollision(event);
 
         if (event.sourceObject === this) {
-            if (Random.boolean(0.8) && this.canDestroy(event.targetObject)) {
+            if (Random.boolean(0.1) && this.canDestroy(event.targetObject)) {
                 this.fire();
                 this.lastDirectionChange = event.time;
             } else {
                 this.directionSuggestions[this.direction] = 0;
                 this.autoChangeDirection(this.scene, event.time);
+
+                return EventManager.eventProcessed;
             }
         }
     }

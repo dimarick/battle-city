@@ -7,9 +7,14 @@ export default class EventManager {
      * @param {object} object
      * @param {string} eventName
      * @param {Function} callback
+     * @param {int} priority
      */
-    subscribe(object, eventName, callback) {
-        this._getListeners(object, eventName).push(callback);
+    subscribe(object, eventName, callback, priority) {
+        if (priority === undefined) {
+            priority = 0;
+        }
+
+        this._getListeners(object, eventName).push([callback, priority]);
     }
 
     /**
@@ -30,8 +35,13 @@ export default class EventManager {
      */
     dispatch(object, eventName, data) {
         const that = this;
-        this._getListeners(object, eventName).forEach((listener) => {
-            listener(object, data, eventName, that);
+        return this._getListeners(object, eventName).every((listenerDef) => {
+            const [callback] = listenerDef;
+            if (callback(object, data, eventName, that) === EventManager.eventProcessed) {
+                return false;
+            }
+
+            return true;
         })
     }
 
@@ -41,26 +51,36 @@ export default class EventManager {
      * @param data
      */
     dispatchMultiple(objects, eventName, data) {
-        objects.forEach((object) => this.dispatch(object, eventName, data));
+        objects.every((object) => {
+            return this.dispatch(object, eventName, data);
+        });
     }
 
     /**
      * @param {object} object
      * @param {string} eventName
-     * @returns {Function[]}
+     * @returns {Array[]}
      * @private
      */
     _getListeners(object, eventName) {
         this.listeners.set(object, this.listeners.get(object) || {});
         this.listeners.get(object)[eventName] = this.listeners.get(object)[eventName] || [];
+        const listeners = this.listeners.get(object)[eventName];
 
-        return this.listeners.get(object)[eventName];
+        listeners.sort((listenerDef1, listenerDef2) => {
+            const [, priority1] = listenerDef1;
+            const [, priority2] = listenerDef2;
+
+            return priority1 - priority2;
+        });
+
+        return listeners;
     }
 
     /**
      * @param {object} object
      * @param {string} eventName
-     * @param {Function[]} listeners
+     * @param {Array[]} listeners
      * @private
      */
     _setListeners(object, eventName, listeners) {
@@ -70,3 +90,5 @@ export default class EventManager {
         this.listeners.get(object)[eventName] = listeners;
     }
 }
+
+EventManager.eventProcessed = true;

@@ -38,7 +38,7 @@ export default class Tank extends DynamicObject {
         this.scene = scene;
         this.detached = false;
         scene.collisionEngine.attachDynamic(this);
-        scene.eventManager.subscribe(this, CollisionEvent.contact, (object, event) => this.handleCollision(event));
+        scene.eventManager.subscribe(this, CollisionEvent.contact, (object, event) => this.handleCollision(event), 10);
     }
 
     /**
@@ -91,8 +91,7 @@ export default class Tank extends DynamicObject {
     setSpeed(speed, direction) {
         if (direction !== undefined) {
             if (this._isRotates(this.direction, direction)) {
-                this.x = Math.round(this.x / 8) * 8;
-                this.y = Math.round(this.y / 8) * 8;
+                this.roundPosition();
             }
 
             this.direction = direction;
@@ -112,6 +111,11 @@ export default class Tank extends DynamicObject {
                 this.setVector(this.baseSpeed * speed, 0);
                 break;
         }
+    }
+
+    roundPosition() {
+        this.x = Math.round(this.x / 8) * 8;
+        this.y = Math.round(this.y / 8) * 8;
     }
 
     fire() {
