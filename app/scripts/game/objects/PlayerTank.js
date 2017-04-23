@@ -81,11 +81,11 @@ export default class PlayerTank extends Tank {
             return;
         }
 
-        this.firing = setInterval(() => this.fire(), 1000 / 4);
+        this.firing = this.scene.scheduler.timeout((time) => this.fire(time), 1000 / 4);
         this.fire();
     }
     commandFireStop() {
-        clearInterval(this.firing);
+        this.scene.scheduler.clearTimeout(this.firing);
 
         delete this.firing;
     }

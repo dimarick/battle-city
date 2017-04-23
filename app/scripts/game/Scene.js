@@ -4,6 +4,7 @@ import SceneUtils from './scene/SceneUtils';
 import Tank from './objects/Tank';
 import Bullet from './objects/Bullet';
 import Explosion from './objects/Explosion';
+import Scheduler from './Scheduler';
 
 export class SceneEvents {}
 SceneEvents.attach = 'scene.attach';
@@ -27,6 +28,8 @@ export default class Scene
         this.utils = new SceneUtils(this);
         this.width = 13*16;
         this.height = 13*16;
+        this.scheduler = new Scheduler(this);
+        this.timeScale = 1;
 
         const that = this;
 
@@ -39,7 +42,6 @@ export default class Scene
             that.animationFrame = requestAnimationFrame(renderLoop)
         }
 
-        // setInterval(renderLoop, 2000);
         renderLoop();
     }
 
@@ -81,6 +83,7 @@ export default class Scene
     }
 
     render(time) {
+        this.scheduler.dispatch(time);
         this.collisionEngine.check(time);
 
         this._context.fillStyle = 'black';
@@ -99,7 +102,45 @@ export default class Scene
         });
     }
 
-    getTime() {
+    /**
+     * @returns {number}
+     */
+    _getTime() {
+        if (this.isSuspended()) {
+            return this._suspendedAt;
+        }
+
         return performance.now() - this._start;
+    }
+
+    /**
+     * TODO: move out all time control to {Game}
+     * @returns {number}
+     */
+    getTime() {
+        return this._getTime() * this.timeScale;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isSuspended() {
+        return this._suspendedAt !== undefined;
+    }
+
+    /**
+     *
+     */
+    suspend() {
+        this._suspendedAt = this._getTime();
+        this.render(this.getTime());
+    }
+
+    /**
+     *
+     */
+    resume() {
+        this._start += performance.now() - this._start - this._suspendedAt;
+        delete this._suspendedAt;
     }
 }

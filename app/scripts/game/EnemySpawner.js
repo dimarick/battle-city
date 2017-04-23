@@ -44,7 +44,7 @@ export default class EnemySpawner {
     }
 
     _autospawn(delay) {
-        setTimeout(() => {
+        this.scene.scheduler.timeout((time, callback) => {
             this.count++;
             this.remain--;
 
@@ -53,6 +53,7 @@ export default class EnemySpawner {
             }
 
             this._spawn();
+            this.scene.scheduler.clearTimeout(callback);
         }, delay);
     }
 

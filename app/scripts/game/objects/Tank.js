@@ -118,17 +118,22 @@ export default class Tank extends DynamicObject {
         this.y = Math.round(this.y / 8) * 8;
     }
 
-    fire() {
+    fire(time) {
         if (this._canFire()) {
             // Run collision detection for case when tank must be already destroyed
-            this.scene.collisionEngine.check(this.scene.getTime(), [Tank, Bullet]);
+            this.scene.collisionEngine.check(time, [Tank, Bullet]);
 
             if (this.detached) {
                 return;
             }
 
             const bullet = this._getBullet();
-            this.scene.eventManager.subscribe(bullet, SceneEvents.detach, (object) => setTimeout(() => this.finishFire(object), 200));
+            this.scene.eventManager.subscribe(bullet, SceneEvents.detach, (object) => {
+                this.scene.scheduler.timeout((time, callback) => {
+                    this.finishFire(object);
+                    this.scene.scheduler.clearTimeout(callback);
+                }, 200)
+            });
 
             this.scene.attach(bullet);
             this.bullets.add(bullet);

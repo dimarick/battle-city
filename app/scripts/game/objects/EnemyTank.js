@@ -22,7 +22,7 @@ export default class EnemyTank extends Tank {
      */
     onAttach(scene) {
         super.onAttach(scene);
-        this.tickInterval = setInterval(() => this.tick(scene), 40);
+        this.tickInterval = scene.scheduler.timeout((time) => this.tick(scene, time), 40);
         this.autoChangeDirection(scene);
     }
 
@@ -30,7 +30,7 @@ export default class EnemyTank extends Tank {
      * @param {Scene} scene
      */
     onDetach(scene) {
-        clearInterval(this.tickInterval);
+        scene.scheduler.clearTimeout(this.tickInterval);
     }
 
     supportsDynamicCollision(object) {
@@ -70,9 +70,9 @@ export default class EnemyTank extends Tank {
 
     /**
      * @param {Scene} scene
+     * @param {number} time
      */
-    tick(scene) {
-        const time = scene.getTime();
+    tick(scene, time) {
         if (Random.boolean(1 / 64) && this.lastDirectionChange + 300 < time) {
             this.autoChangeDirection(scene, time);
         }

@@ -29,14 +29,26 @@ export default class Game
         const map = new StageMap(mapStage1);
         map.attach(scene);
 
+        this.keyboardGeneral = new Keyboard({
+            19: Commands.pause,
+            109: Commands.speedDown,
+            107: Commands.speedUp
+        }, scene.eventManager);
+
+        this.keyboardGeneral.attach(this);
+
+        scene.eventManager.subscribe(this, Commands.pause.start, () => this.commandPause(scene));
+        scene.eventManager.subscribe(this, Commands.speedDown.start, () => this.commandSpeedDown(scene));
+        scene.eventManager.subscribe(this, Commands.speedUp.start, () => this.commandSpeedUp(scene));
+
         this.keyboard1 = new Keyboard({
             38: Commands.up,
             40: Commands.down,
             37: Commands.left,
             39: Commands.right,
-            96: Commands.fire
+            96: Commands.fire,
+            19: Commands.pause
         }, scene.eventManager);
-
 
         this.keyboard2 = new Keyboard({
             87: Commands.up,
@@ -57,6 +69,17 @@ export default class Game
         });
 
         this.enemySpawner.spawn();
+    }
+
+    /**
+     * @param {Scene} scene
+     */
+    commandPause(scene) {
+        if (!scene.isSuspended()) {
+            scene.suspend();
+        } else {
+            scene.resume();
+        }
     }
 
     /**
@@ -119,5 +142,19 @@ export default class Game
             this.debugInfo = undefined;
             this.showDebug(true);
         }
+    }
+
+    /**
+     * @param {Scene} scene
+     */
+    commandSpeedUp(scene) {
+        scene.timeScale /= 0.9;
+    }
+
+    /**
+     * @param {Scene} scene
+     */
+    commandSpeedDown(scene) {
+        scene.timeScale *= 0.9;
     }
 }
