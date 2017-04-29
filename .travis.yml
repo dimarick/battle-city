@@ -3,3 +3,12 @@ language: node_js
 install:
   - 'npm install'
   - 'npm run build'
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "ONgeH7SOOli92sk4cjPxFy6ahGhnGf4HP6jkElodyRyn1vjly+04izQWfWVhf3qPL67sUVcS/JHWEPJUZv+8IcCUWnStd55FqF5Xka1MZNUsaYGianUWji6S2g3A3qN01Bmz8z0jdE4i5LNrnfO2wRnNSc1lTr4+jQUsb2R8u3y3a9Y9j3sN7FhacFp3GgdjE4gS5PmjEUAaQ0EnSGCuJbe30jXIYtoNGCDb0H1DgAhsARVOAUDSx2dJ2g47uoZ1PEVgcvPvBHCrDUK3QRvoKXu5WsTuSczrCaaSIyw+ttNk19H/4DIA5e0rLgkrEbmbzJ5XnM1IRaRFYEymvve9zH7cmLIL2kqIyE2v76fj50bJo+cKe8G8kyk2vxw/8yqYVBJQmu5A2pO+/z1YN2x9sTvCXIBuj3HAcKaavab32Pd3z/pv79eLJp/Mvcqr0MObIKxH0JNbvNiB3a5sW8VMe6mtKKLZVpsFnQfNLxwBB6z3DLlWgU2Wv3nIySXgope36FhPfb4kKO81Lc+BEhQh2zMQMnPAQIMkp2N+uqIzKPD6/b9jZusXNnQiFkrMk4GwB8wkArf/fze0cils3/h4YthKxapkKpjpIGvNpTFu2byP6kUM6KKxFck9W+4rlH1IUV+/CCVskjvoIdXGfy/9iXIa9c3Fiwus09LbIxhITaw="
+  file: "dist/scripts/bundle.js"
+  skip_cleanup: true
+  on:
+    tags: true
