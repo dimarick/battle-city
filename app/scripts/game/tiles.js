@@ -58,6 +58,15 @@ class Tile {
      * @param {int} y
      */
     renderFragment(context, x, y) {
+        this.renderSceneFragment(context, x + 10, y + 12)
+    }
+
+    /**
+     * @param {CanvasRenderingContext2D} context
+     * @param {int} x
+     * @param {int} y
+     */
+    renderSceneFragment(context, x, y) {
         context.mozImageSmoothingEnabled = false;
         context.webkitImageSmoothingEnabled = false;
         context.msImageSmoothingEnabled = false;
@@ -224,6 +233,36 @@ class BlockTileRegistry extends SmallTile {
     }
 }
 
+class GameplayTileRegistry extends SmallTile {
+    constructor(parent) {
+        super(parent, 36, 20, 5, 10);
+
+        this.score100 = new LargeTile(this, 0, 0, 1, 1);
+        this.score200 = new LargeTile(this, 1, 0, 1, 1);
+        this.score300 = new LargeTile(this, 2, 0, 1, 1);
+        this.score400 = new LargeTile(this, 3, 0, 1, 1);
+        this.score500 = new LargeTile(this, 4, 0, 1, 1);
+
+        this.pause = new SmallTile(this, 0, 2, 5, 1);
+        this.stageText = new SmallTile(this, 5, 2, 5, 1);
+        this.gameOver = new SmallTile(this, 0, 3, 4, 2);
+        this.enemyIndicator = new SmallTile(this, 4, 4, 1, 1);
+        this.player1Life = new SmallTile(parent, 47, 17, 2, 2);
+        this.player2Life = new SmallTile(parent, 47, 20, 2, 2);
+        this.num = [];
+        this.num[0] = new SmallTile(this, 5, 3, 1, 1);
+        this.num[1] = new SmallTile(this, 6, 3, 1, 1);
+        this.num[2] = new SmallTile(this, 7, 3, 1, 1);
+        this.num[3] = new SmallTile(this, 8, 3, 1, 1);
+        this.num[4] = new SmallTile(this, 9, 3, 1, 1);
+        this.num[5] = new SmallTile(this, 5, 4, 1, 1);
+        this.num[6] = new SmallTile(this, 6, 4, 1, 1);
+        this.num[7] = new SmallTile(this, 7, 4, 1, 1);
+        this.num[8] = new SmallTile(this, 8, 4, 1, 1);
+        this.num[9] = new SmallTile(this, 9, 4, 1, 1);
+    }
+}
+
 class StaffTileRegistry extends LargeTile {
     constructor(parent) {
         super(parent, 19, 2, 2, 1);
@@ -285,6 +324,7 @@ class TileRegistry extends Tile {
         this.birth = new BirthTileRegistry(this);
         this.bullet = new BulletTileRegistry(this);
         this.null = new NullTile(this);
+        this.gameplay = new GameplayTileRegistry(this);
     }
 
     getImage() {

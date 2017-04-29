@@ -67,7 +67,6 @@ export default class Tank extends DynamicObject {
         this.scene.collisionEngine.detach(this);
         this.scene.detach(this);
         this.scene.attach(animation);
-        this.scene.eventManager.subscribe(animation, SceneEvents.detach, () => this.scene.game.autoRespawn(this.scene, this));
         bullet.owner.score += this.cost;
     }
 

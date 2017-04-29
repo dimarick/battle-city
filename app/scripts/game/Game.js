@@ -1,16 +1,13 @@
 import Scene from './Scene';
 import DebugInfo from './objects/DebugInfo';
-import {TankDirection} from './objects/Tank';
-import PlayerTank from './objects/PlayerTank';
 import Keyboard from './input/Keyboard';
 import Commands from './input/Commands';
-import PlayerTankBirth from './objects/PlayerTankBirth';
 import StageMap, {mapStage1} from './objects/StageMap';
-import tiles from './tiles';
 import Staff from "./objects/blocks/Staff";
-import EnemyTank from "./objects/EnemyTank";
-import TankBirth from "./objects/TankBirth";
 import EnemySpawner from "./EnemySpawner";
+import PlayerSpawner, {PlayerEvents} from "./PlayerSpawner";
+import tiles from "./tiles";
+import GameOver from "./objects/common/GameOver";
 
 export default class Game
 {
@@ -58,15 +55,28 @@ export default class Game
             32: Commands.fire
         }, scene.eventManager);
 
-        this.spawnPlayer1(scene);
-        this.spawnPlayer2(scene);
+        this.countPlayers = 0;
 
-        this.enemySpawner = new EnemySpawner(this._scene, 20, 6, {
+        this.player1Spawner = new PlayerSpawner(this._scene, this.keyboard1, tiles.tank.yellow, 0, 3);
+        scene.attach(this.player1Spawner);
+        this.player1Spawner.spawnPlayer(scene);
+        this.countPlayers++;
+        scene.eventManager.subscribe(this.player1Spawner, PlayerEvents.dead, () => this.handlePlayerDead());
+
+        this.player2Spawner = new PlayerSpawner(this._scene, this.keyboard2, tiles.tank.green, 1, 3);
+        scene.attach(this.player2Spawner);
+        this.player2Spawner.spawnPlayer(scene);
+        this.countPlayers++;
+        scene.eventManager.subscribe(this.player2Spawner, PlayerEvents.dead, () => this.handlePlayerDead());
+
+        this.enemySpawner = new EnemySpawner(scene, 2000, 6, {
             NormalTank: 3,
             FastTank: 2,
             PowerTank: 2,
             ArmoredTank: 1.5,
         });
+
+        scene.attach(this.enemySpawner);
 
         this.enemySpawner.spawn();
     }
@@ -79,47 +89,6 @@ export default class Game
             scene.suspend();
         } else {
             scene.resume();
-        }
-    }
-
-    /**
-     * @param {Scene} scene
-     */
-    spawnPlayer1(scene) {
-        const score = this.player1 !== undefined ? this.player1.score : 0;
-        this.player1 = new PlayerTank(tiles.tank.yellow, 8 * 8, 24 * 8, TankDirection.up);
-        this.player1.score = score;
-        this.keyboard1.attach(this.player1);
-        scene.attach(new PlayerTankBirth(this.player1, this.player1.x, this.player1.y));
-    }
-
-    /**
-     * @param {Scene} scene
-     */
-    spawnPlayer2(scene) {
-        const score = this.player2 !== undefined ? this.player2.score : 0;
-        this.player2 = new PlayerTank(tiles.tank.green, 16 * 8, 24 * 8, TankDirection.up);
-        this.player2.score = score;
-        this.keyboard2.attach(this.player2);
-        scene.attach(new PlayerTankBirth(this.player2, this.player2.x, this.player2.y));
-    }
-
-    spawnEnemy(scene) {
-        this.enemyCount++;
-        if (this.enemyCount >= this.enemyMaxCount) {
-            return;
-        }
-        const spawnPoint = Math.floor(Math.random() * 13) * 16;
-        const tank = new EnemyTank(spawnPoint, 0, TankDirection.down);
-        tank.setSpeed(1);
-        scene.attach(new TankBirth(tank, spawnPoint, 0));
-    }
-
-    autoRespawn(scene, object) {
-        if (scene.game.player1 === object) {
-            scene.game.spawnPlayer1(scene);
-        } else if (scene.game.player2 === object) {
-            scene.game.spawnPlayer2(scene);
         }
     }
 
@@ -156,5 +125,22 @@ export default class Game
      */
     commandSpeedDown(scene) {
         scene.timeScale *= 0.9;
+    }
+
+    gameOver() {
+        if (this.isGameOver) {
+            return;
+        }
+        this.keyboard1.disable();
+        this.keyboard2.disable();
+        this._scene.attach(new GameOver());
+        this.isGameOver = true;
+    }
+
+    handlePlayerDead() {
+        this.countPlayers--;
+        if (this.countPlayers === 0) {
+            this.gameOver();
+        }
     }
 }

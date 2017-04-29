@@ -6,6 +6,7 @@ import {SceneEvents} from "./Scene";
 import {TankDirection} from "./objects/Tank";
 import Random from "./Random";
 import TankBirth from "./objects/TankBirth";
+import tiles from "./tiles";
 
 export default class EnemySpawner {
     /**
@@ -74,6 +75,19 @@ export default class EnemySpawner {
         this.spawnDelay *= 0.9;
         if (Random.boolean(1 / 10)) {
             this._autospawn(this.spawnDelay);
+        }
+    }
+
+    renderEnemyIndicator(context, num) {
+        const x = num % 2;
+        const y = Math.floor(num / 2);
+
+        tiles.gameplay.enemyIndicator.renderSceneFragment(context, 231 + x * 8, 12 + y * 8);
+    }
+
+    render(context) {
+        for (let i = 0; i < Math.min(this.remain, 20); i++) {
+            this.renderEnemyIndicator(context, i);
         }
     }
 }

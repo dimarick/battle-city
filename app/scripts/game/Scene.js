@@ -5,6 +5,7 @@ import Tank from './objects/Tank';
 import Bullet from './objects/Bullet';
 import Explosion from './objects/Explosion';
 import Scheduler from './Scheduler';
+import Pause from "./objects/common/Pause";
 
 export class SceneEvents {}
 SceneEvents.attach = 'scene.attach';
@@ -30,6 +31,7 @@ export default class Scene
         this.height = 13*16;
         this.scheduler = new Scheduler(this);
         this.timeScale = 1;
+        this.pauseObject = new Pause();
 
         const that = this;
 
@@ -86,8 +88,11 @@ export default class Scene
         this.scheduler.dispatch(time);
         this.collisionEngine.check(time);
 
+        this._context.fillStyle = '#808080';
+        this._context.fillRect(0, 0, 260 * 3, 233 * 3);
+
         this._context.fillStyle = 'black';
-        this._context.fillRect(0, 0, this.width * 3, this.height * 3);
+        this._context.fillRect(10 * 3, 12 * 3, this.width * 3, this.height * 3);
 
         this._objects.forEach((object) => {
             object.render(this._context, time)
@@ -134,6 +139,7 @@ export default class Scene
     suspend() {
         this._suspendedAt = this._getTime();
         this.render(this.getTime());
+        this.attach(this.pauseObject);
     }
 
     /**
@@ -142,5 +148,6 @@ export default class Scene
     resume() {
         this._start += performance.now() - this._start - this._suspendedAt;
         delete this._suspendedAt;
+        this.detach(this.pauseObject);
     }
 }

@@ -15,6 +15,7 @@ export default class PlayerTank extends Tank {
         super(x, y, direction);
         this.tankTile = tankColorTiles.player;
         this.score = 0;
+        this.cost = 0;
         this.baseSpeed = 0.06;
     }
 
