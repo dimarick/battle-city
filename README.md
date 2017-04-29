@@ -1,6 +1,8 @@
 JavaScript Battle City game implementation
 ------------------------------------------
 
+Live demo: https://dimarick.github.io/battle-city/
+
 Running:
 -------
 
