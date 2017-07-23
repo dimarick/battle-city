@@ -7,8 +7,8 @@ Running:
 -------
 
 ```
-npm install
-npm run build
+yarn install
+yarn run build
 ```
 
 And open index.html in your browser (webkit is preferred, it does guarantee maximum performance)
