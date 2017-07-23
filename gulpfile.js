@@ -4,7 +4,6 @@
 
 // gulp plugins
 const gulp = require('gulp'),
-    gutil = require('gulp-util'),
     browserify = require('browserify'),
     source = require('vinyl-source-stream'),
     sourcemaps = require('gulp-sourcemaps'),
@@ -31,13 +30,5 @@ gulp.task('watch', function () {
     gulp.watch(['./app/**/*.html'], ['html']);
 });
 
-gulp.task('clean', function () {
-    gutil.log('Clean task goes here...');
-});
-
 gulp.task('build', ['scripts'], function () {
-});
-
-gulp.task('default', function () {
-    gutil.log('Default task goes here...');
 });
